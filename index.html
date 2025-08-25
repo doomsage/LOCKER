@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Doomsage - Private Locker</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    overflow-x: hidden;
+    background: #01010a;
+    color: #00fff0;
+    text-align: center;
+    position: relative;
+  }
+
+  h1 {
+    margin-top: 30px;
+    font-size: 3em;
+    text-shadow: 0 0 10px #00fff0, 0 0 20px #00fff0, 0 0 30px #00fff0;
+    letter-spacing: 2px;
+  }
+
+  /* Tabs */
+  .tabs {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    padding: 12px 25px;
+    margin: 0 10px;
+    background: #111;
+    color: #0ff;
+    border: 2px solid #0ff;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .tab-btn.active {
+    background: #0ff;
+    color: #111;
+    box-shadow: 0 0 25px #0ff;
+  }
+
+  .tab-btn:hover {
+    background: #0ff;
+    color: #111;
+    box-shadow: 0 0 15px #0ff;
+  }
+
+  /* Tab content */
+  #content {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  input {
+    padding: 12px 20px;
+    margin: 10px;
+    background: #0a0a14;
+    border: 2px solid #00fff0;
+    border-radius: 10px;
+    color: #0ff;
+    text-align: center;
+    font-size: 1.2em;
+  }
+
+  input::placeholder { color: #0ff; }
+
+  button.upload-btn {
+    padding: 12px 25px;
+    margin: 10px;
+    background: linear-gradient(45deg,#00fff0,#0ff0ff);
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    color: #01010a;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 0 0 15px #0ff;
+    transition: all 0.3s ease;
+  }
+
+  button.upload-btn:hover {
+    box-shadow: 0 0 25px #0ff, 0 0 40px #0ff;
+    transform: scale(1.05);
+  }
+
+  .file-preview {
+    position: relative;
+    margin: 15px;
+    border: 2px solid #0ff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 15px #0ff;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .file-preview img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .file-preview:hover img {
+    transform: scale(1.2);
+    box-shadow: 0 0 30px #0ff;
+  }
+
+  .download-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.6);
+    color: #0ff;
+    border: none;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+
+  .download-btn:hover {
+    background: #0ff;
+    color: #01010a;
+    box-shadow: 0 0 15px #0ff;
+  }
+
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    justify-content: center;
+    align-items: center;
+  }
+
+  #lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border: 3px solid #0ff;
+    border-radius: 15px;
+    box-shadow: 0 0 30px #0ff;
+  }
+
+  /* Particles */
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #0ff;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 5s linear infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-100px) translateX(50px); }
+    100% { transform: translateY(0) translateX(0); }
+  }
+
+</style>
+</head>
+<body>
+
+<h1>DOOMSAGE - PRIVATE LOCKER</h1>
+
+<div id="login">
+  <input type="password" id="pass" placeholder="Enter Password">
+  <button onclick="login()">Unlock</button>
+  <p id="login-msg" style="color:red;"></p>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('upload')">Upload</button>
+    <button class="tab-btn" onclick="showTab('view')">View</button>
+  </div>
+  <div id="content">
+    <!-- Upload tab default -->
+    <h3>Upload File</h3>
+    <input type="file" id="fileInput">
+    <button class="upload-btn" onclick="uploadFile()">Upload</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="">
+</div>
+
+<script>
+const PASSWORD = "kunal321";
+
+// Particles
+for(let i=0;i<50;i++){
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.top = Math.random()*100+'%';
+  p.style.left = Math.random()*100+'%';
+  p.style.animationDuration = (3 + Math.random()*5)+'s';
+  document.body.appendChild(p);
+}
+
+function login() {
+  const pass = document.getElementById("pass").value;
+  if(pass === PASSWORD){
+    document.getElementById("login").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    showTab('upload');
+  } else {
+    document.getElementById("login-msg").innerText = "Wrong password!";
+  }
+}
+
+// Tab switching
+function showTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(tab==='upload'){
+    document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+    document.getElementById('content').innerHTML = `
+      <h3>Upload File</h3>
+      <input type="file" id="fileInput">
+      <button class="upload-btn" onclick="uploadFile()">Upload</button>
+    `;
+  } else if(tab==='view'){
+    document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+    document.getElementById('content').innerHTML = "<h3>View Files</h3><div id='filePreviewContainer'></div>";
+    fetchFiles();
+  }
+}
+
+async function uploadFile() {
+  const file = document.getElementById("fileInput").files[0];
+  if(!file) return alert("Select a file first");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`/upload?password=${PASSWORD}`, {
+    method: "POST",
+    body: formData
+  });
+
+  const text = await res.text();
+  alert(text);
+}
+
+async function fetchFiles() {
+  const res = await fetch(`/files?password=${PASSWORD}`);
+  const files = await res.json();
+
+  const container = document.getElementById('filePreviewContainer');
+  container.innerHTML = "";
+
+  files.forEach(f => {
+    const div = document.createElement('div');
+    div.className = "file-preview";
+
+    div.innerHTML = `
+      <img src="/download/${f}?password=${PASSWORD}" onclick="openLightbox(this.src)">
+      <a href="/download/${f}?password=${PASSWORD}" download>
+        <button class="download-btn">⬇</button>
+      </a>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Lightbox
+function openLightbox(src){
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightboxImg');
+  lb.style.display = "flex";
+  lbImg.src = src;
+}
+
+function closeLightbox(){
+  document.getElementById('lightbox').style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
