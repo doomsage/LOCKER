@@ -2,192 +2,190 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>For Agrima | The Ultimate Experience</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Agrima | The Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
 
     <style>
-        body { margin: 0; padding: 0; overflow-x: hidden; background: #000; font-family: 'Fredoka One', cursive; color: white; }
-        canvas { display: block; }
+        :root {
+            --p1: #ff758f;
+            --p2: #ffafcc;
+            --glass: rgba(255, 255, 255, 0.15);
+            --text: #ffffff;
+        }
 
-        /* --- UI OVERLAYS --- */
-        .section-trigger { height: 100vh; width: 100%; position: relative; z-index: 5; }
-        
-        #msg-container {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; pointer-events: none; z-index: 10;
-        }
-        .cool-msg {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
-            padding: 20px; margin: 15px 0; text-align: center;
-            transform: rotateY(90deg); opacity: 0; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .cool-msg.show { transform: rotateY(0deg); opacity: 1; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* --- K & A NODES --- */
-        .node {
-            position: fixed; width: 70px; height: 70px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; cursor: pointer; z-index: 100; bottom: 15%;
-            box-shadow: 0 0 30px currentColor; transition: transform 0.3s;
+        body {
+            background: #0a0a0a;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        #node-k { left: 10%; color: #00d4ff; border: 3px solid #00d4ff; background: rgba(0,212,255,0.2); }
-        #node-a { right: 10%; color: #ff0055; border: 3px solid #ff0055; background: rgba(255,0,85,0.2); }
 
-        /* --- PROPOSAL MODAL --- */
-        #final-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
+        /* Animated Gradient Background */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #2d0a15 0%, #0a0a0a 100%);
+            z-index: -1;
         }
-        .btn { padding: 15px 40px; border-radius: 30px; border: none; margin: 10px; font-size: 1.2rem; font-family: 'Pacifico'; }
-        #yes-btn { background: #ff0055; color: white; }
-        #wait-btn { background: #333; color: white; }
+
+        /* Hero Section */
+        header {
+            margin-top: 60px;
+            text-align: center;
+            padding: 20px;
+            opacity: 0; /* Animated by GSAP */
+        }
+
+        header h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5rem;
+            color: var(--p1);
+            text-shadow: 0 0 20px rgba(255, 117, 143, 0.5);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Navigation Grid */
+        .nav-container {
+            width: 90%;
+            max-width: 500px;
+            margin-top: 40px;
+            display: grid;
+            gap: 20px;
+            padding-bottom: 50px;
+        }
+
+        .nav-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.3s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; /* Animated by GSAP */
+            transform: translateX(-30px);
+        }
+
+        .nav-card:active {
+            transform: scale(0.95);
+            background: rgba(255, 117, 143, 0.3);
+        }
+
+        .card-info h3 {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5rem;
+            color: var(--p2);
+        }
+
+        .card-info p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px var(--p1));
+        }
+
+        /* Footer Pulse */
+        .status {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--p1);
+            margin-top: 20px;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
     </style>
 </head>
 <body>
 
-    <div id="msg-container">
-        <div class="cool-msg">Agrima, you're the star of my sky... ✨</div>
-        <div class="cool-msg">Every moment with you is magic. 🧸</div>
-        <div class="cool-msg">I promise to never let you go. ❤️</div>
-    </div>
+    <div class="bg-glow"></div>
 
-    <div id="node-k" class="node" onclick="activate('k')">K</div>
-    <div id="node-a" class="node" onclick="activate('a')">A</div>
+    <header id="header">
+        <h1>Hi, Agrima! ✨</h1>
+        <p>Aapki special journey yahan se shuru hoti hai...</p>
+        <div class="status">System Online & Loaded with Love</div>
+    </header>
 
-    <div id="final-overlay">
-        <div id="heart-break" style="font-size: 80px; margin-bottom: 20px;">💔</div>
-        <h2 style="font-family: 'Pacifico'; color: #ff0055;">Agrima, I Love You!</h2>
-        <button id="yes-btn" class="btn" onclick="celebrate()">YES! ❤️</button>
-        <button id="wait-btn" class="btn" onclick="waitFlow()">Wait...</button>
+    <div class="nav-container">
+        <a href="river.html" class="nav-card">
+            <div class="card-info">
+                <h3>Heart River</h3>
+                <p>Dynamic wave & flow effects</p>
+            </div>
+            <div class="icon">🌊</div>
+        </a>
+
+        <a href="letters.html" class="nav-card">
+            <div class="card-info">
+                <h3>Love Letters</h3>
+                <p>3D floating messages for you</p>
+            </div>
+            <div class="icon">💌</div>
+        </a>
+
+        <a href="transition.html" class="nav-card">
+            <div class="card-info">
+                <h3>The Fall</h3>
+                <p>Falling heart transition</p>
+            </div>
+            <div class="icon">🥀</div>
+        </a>
+
+        <a href="connection.html" class="nav-card">
+            <div class="card-info">
+                <h3>The Bond</h3>
+                <p>Physics-based K & A connection</p>
+            </div>
+            <div class="icon">🔗</div>
+        </a>
+
+        <a href="proposal.html" class="nav-card">
+            <div class="card-info">
+                <h3>The Question</h3>
+                <p>Wait vs Yes Final Logic</p>
+            </div>
+            <div class="icon">💍</div>
+        </a>
     </div>
 
     <script>
-        let riverHearts = [];
-        let activeK = false, activeA = false;
-        let connectionProgress = 0;
-        let pulsePos = 0;
+        window.onload = () => {
+            const tl = gsap.timeline();
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            for(let i=0; i<40; i++) riverHearts.push(new HeartParticle());
-        }
+            // Hero Animation
+            tl.to("#header", { opacity: 1, duration: 1.2, ease: "power2.out" });
 
-        function draw() {
-            background(10, 10, 20);
-            
-            // 1. DYNAMIC RIVER (Left to Right Wave)
-            riverHearts.forEach(h => {
-                h.update();
-                h.display();
-            });
-
-            // 2. K & A CONNECTION LOGIC
-            if(activeK && activeA) {
-                drawNeonString();
-            }
-        }
-
-        class HeartParticle {
-            constructor() {
-                this.x = random(-width, 0);
-                this.y = random(height);
-                this.baseY = this.y;
-                this.speed = random(2, 5);
-                this.offset = random(100);
-            }
-            update() {
-                this.x += this.speed;
-                // Wave Motion
-                this.y = this.baseY + sin(frameCount * 0.05 + this.offset) * 30;
-                
-                // Interaction
-                let d = dist(mouseX, mouseY, this.x, this.y);
-                if(d < 100) {
-                    let force = map(d, 0, 100, 5, 0);
-                    this.y += (this.y > mouseY) ? force : -force;
-                }
-
-                if(this.x > width) this.x = -50;
-            }
-            display() {
-                noStroke();
-                fill(255, 100, 150, 150);
-                textSize(20);
-                text('❤️', this.x, this.y);
-            }
-        }
-
-        function drawNeonString() {
-            connectionProgress = lerp(connectionProgress, 1, 0.02);
-            let kPos = {x: windowWidth * 0.1 + 35, y: windowHeight * 0.85 + 35};
-            let aPos = {x: windowWidth * 0.9 - 35, y: windowHeight * 0.85 + 35};
-
-            noFill();
-            strokeWeight(4);
-            
-            // Glowing String
-            beginShape();
-            stroke(255, 255, 255, 50);
-            for(let t=0; t<=connectionProgress; t+=0.01) {
-                let x = lerp(kPos.x, aPos.x, t);
-                let y = lerp(kPos.y, aPos.y, t) + sin(t * PI + frameCount * 0.1) * 20;
-                vertex(x, y);
-            }
-            endShape();
-
-            // Heartbeat Pulse
-            if(connectionProgress > 0.95) {
-                pulsePos += 0.02;
-                if(pulsePos > 1) pulsePos = 0;
-                
-                let px = lerp(kPos.x, aPos.x, pulsePos);
-                let py = lerp(kPos.y, aPos.y, pulsePos) + sin(pulsePos * PI + frameCount * 0.1) * 20;
-                
-                fill(pulsePos < 0.5 ? '#00d4ff' : '#ff0055');
-                noStroke();
-                circle(px, py, 12);
-                // After 3 seconds of connection, show heart
-                if(frameCount % 300 == 0) triggerBigHeart();
-            }
-        }
-
-        function activate(type) {
-            if(type === 'k') activeK = true;
-            if(type === 'a') activeA = true;
-            
-            // Cool message reveal on interaction
-            let msgs = document.querySelectorAll('.cool-msg');
-            msgs.forEach((m, i) => {
-                setTimeout(() => m.classList.add('show'), i * 1000);
-            });
-        }
-
-        function triggerBigHeart() {
-            gsap.to("body", { backgroundColor: "#800", duration: 1 });
-            setTimeout(() => {
-                document.getElementById('final-overlay').style.display = 'flex';
-            }, 1000);
-        }
-
-        function waitFlow() {
-            let overlay = document.getElementById('final-overlay');
-            overlay.innerHTML = `
-                <h1 style="font-size:3rem">🥺</h1>
-                <h3>Kab tak wait karwaoge?</h3>
-                <button class="btn" onclick="alert('I will wait for you forever...')">2 Saal</button>
-                <button class="btn" onclick="alert('I will wait for you forever...')">9 Saal</button>
-            `;
-        }
-
-        function celebrate() {
-            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
-            document.getElementById('final-overlay').innerHTML = `<h1 style="font-family:'Pacifico'; font-size:4rem">Forever Yours! ❤️</h1>`;
-        }
+            // Cards Stagger Animation
+            tl.to(".nav-card", {
+                opacity: 1,
+                x: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "back.out(1.7)"
+            }, "-=0.5");
+        };
     </script>
 </body>
 </html>
