@@ -2,250 +2,191 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrima & Kunal | Forever</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>For Agrima | The Ultimate Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
 
     <style>
-        :root { --p1: #ff758f; --p2: #ffafcc; --blue: #00b4d8; --text: #590d22; }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #fff0f3; font-family: 'Quicksand', sans-serif; color: var(--text); overflow-x: hidden; }
+        body { margin: 0; padding: 0; overflow-x: hidden; background: #000; font-family: 'Fredoka One', cursive; color: white; }
+        canvas { display: block; }
 
-        section { min-height: 100vh; width: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-
-        /* --- 1. HERO --- */
-        .hero h1 { font-family: 'Pacifico', cursive; font-size: 3.5rem; color: var(--p1); }
+        /* --- UI OVERLAYS --- */
+        .section-trigger { height: 100vh; width: 100%; position: relative; z-index: 5; }
         
-        /* --- 2. HEART RIVER --- */
-        #river-container { height: 100vh; background: #ffe5ec; cursor: crosshair; }
-        #river-canvas { width: 100%; height: 100%; }
-
-        /* --- 3. LOVE LETTERS --- */
-        .letters-container { background: #ffccd5; padding: 50px 0; }
-        .letter { 
-            width: 80%; max-width: 300px; background: white; padding: 20px; 
-            margin: 40px auto; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transform: scale(0) translateZ(-500px); opacity: 0;
+        #msg-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; pointer-events: none; z-index: 10;
         }
-
-        /* --- 4. THE K & A BALLS --- */
-        .physics-section { height: 100vh; display: flex; align-items: center; justify-content: space-around; width: 100%; background: #fff; }
-        .ball { 
-            width: 80px; height: 80px; border-radius: 50%; display: flex; 
-            align-items: center; justify-content: center; font-size: 2rem; color: white;
-            font-weight: bold; cursor: pointer; z-index: 100; position: relative;
+        .cool-msg {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+            padding: 20px; margin: 15px 0; text-align: center;
+            transform: rotateY(90deg); opacity: 0; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #ballK { background: var(--blue); box-shadow: 0 0 20px var(--blue); }
-        #ballA { background: var(--p1); box-shadow: 0 0 20px var(--p1); }
-        #string-canvas { position: absolute; inset: 0; pointer-events: none; }
+        .cool-msg.show { transform: rotateY(0deg); opacity: 1; }
 
-        /* --- 5. FINAL HEART --- */
-        #big-heart { font-size: 100px; cursor: pointer; transition: 0.3s; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-
-        /* --- 6. PROPOSAL POPUP --- */
-        #overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none;
-            z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;
+        /* --- K & A NODES --- */
+        .node {
+            position: fixed; width: 70px; height: 70px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer; z-index: 100; bottom: 15%;
+            box-shadow: 0 0 30px currentColor; transition: transform 0.3s;
         }
-        .btn { padding: 15px 40px; border-radius: 50px; border: none; margin: 10px; font-size: 1.2rem; cursor: pointer; }
-        #yes-btn { background: var(--p1); color: white; }
-        #wait-btn { background: #555; color: white; }
-        
-        .fade-in { animation: fadeIn 0.8s forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        #node-k { left: 10%; color: #00d4ff; border: 3px solid #00d4ff; background: rgba(0,212,255,0.2); }
+        #node-a { right: 10%; color: #ff0055; border: 3px solid #ff0055; background: rgba(255,0,85,0.2); }
+
+        /* --- PROPOSAL MODAL --- */
+        #final-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .btn { padding: 15px 40px; border-radius: 30px; border: none; margin: 10px; font-size: 1.2rem; font-family: 'Pacifico'; }
+        #yes-btn { background: #ff0055; color: white; }
+        #wait-btn { background: #333; color: white; }
     </style>
 </head>
 <body>
 
-    <section class="hero">
-        <h1 id="main-name">Agrima ✨</h1>
-        <p>Scroll down to see the magic...</p>
-    </section>
-
-    <section id="river-container">
-        <canvas id="river-canvas"></canvas>
-        <div style="position: absolute; top: 10px; color: var(--p1);">Touch the flow...</div>
-    </section>
-
-    <section class="letters-container">
-        <div class="letter">Agrima, tumhari smile sabse pyaari hai... ❤️</div>
-        <div class="letter">Har din tumse baat karna meri habit ban gayi hai... 🧸</div>
-        <div class="letter">Tum mere liye bohot special ho... ✨</div>
-    </section>
-
-    <section class="physics-section">
-        <canvas id="string-canvas"></canvas>
-        <div id="ballK" class="ball" onclick="tapBall('K')">K</div>
-        <div id="ballA" class="ball" onclick="tapBall('A')">A</div>
-        <div style="position: absolute; top: 20px;">Tap both letters to connect</div>
-    </section>
-
-    <section>
-        <div id="big-heart" onclick="openHeart()">❤️</div>
-        <p>Tap to Open</p>
-    </section>
-
-    <div id="overlay">
-        <div id="modal-content" class="fade-in" style="text-align: center;">
-            </div>
+    <div id="msg-container">
+        <div class="cool-msg">Agrima, you're the star of my sky... ✨</div>
+        <div class="cool-msg">Every moment with you is magic. 🧸</div>
+        <div class="cool-msg">I promise to never let you go. ❤️</div>
     </div>
 
-    <audio id="bgMusic" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-    </audio>
+    <div id="node-k" class="node" onclick="activate('k')">K</div>
+    <div id="node-a" class="node" onclick="activate('a')">A</div>
+
+    <div id="final-overlay">
+        <div id="heart-break" style="font-size: 80px; margin-bottom: 20px;">💔</div>
+        <h2 style="font-family: 'Pacifico'; color: #ff0055;">Agrima, I Love You!</h2>
+        <button id="yes-btn" class="btn" onclick="celebrate()">YES! ❤️</button>
+        <button id="wait-btn" class="btn" onclick="waitFlow()">Wait...</button>
+    </div>
 
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+        let riverHearts = [];
+        let activeK = false, activeA = false;
+        let connectionProgress = 0;
+        let pulsePos = 0;
 
-        // --- RIVER ANIMATION ---
-        const rCanvas = document.getElementById('river-canvas');
-        const rCtx = rCanvas.getContext('2d');
-        rCanvas.width = window.innerWidth;
-        rCanvas.height = window.innerHeight;
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            for(let i=0; i<40; i++) riverHearts.push(new HeartParticle());
+        }
 
-        let hearts = [];
-        let mouse = { x: -1000, y: -1000 };
+        function draw() {
+            background(10, 10, 20);
+            
+            // 1. DYNAMIC RIVER (Left to Right Wave)
+            riverHearts.forEach(h => {
+                h.update();
+                h.display();
+            });
 
-        class RiverHeart {
-            constructor() {
-                this.x = Math.random() * rCanvas.width;
-                this.y = Math.random() * rCanvas.height;
-                this.size = Math.random() * 10 + 5;
-                this.speedY = Math.random() * 2 + 1;
-                this.history = [];
+            // 2. K & A CONNECTION LOGIC
+            if(activeK && activeA) {
+                drawNeonString();
             }
-            draw() {
-                rCtx.fillStyle = '#ff758f';
-                rCtx.beginPath();
-                rCtx.arc(this.x, this.y, this.size/2, 0, Math.PI*2);
-                rCtx.fill();
-                
-                // Traces
-                this.history.forEach((h, i) => {
-                    rCtx.fillStyle = `rgba(255, 117, 143, ${i/20})`;
-                    rCtx.beginPath();
-                    rCtx.arc(h.x, h.y, (this.size/2)*(i/20), 0, Math.PI*2);
-                    rCtx.fill();
-                });
+        }
+
+        class HeartParticle {
+            constructor() {
+                this.x = random(-width, 0);
+                this.y = random(height);
+                this.baseY = this.y;
+                this.speed = random(2, 5);
+                this.offset = random(100);
             }
             update() {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if(dist < 100) {
-                    this.x -= dx/dist * 5;
-                    this.y -= dy/dist * 5;
+                this.x += this.speed;
+                // Wave Motion
+                this.y = this.baseY + sin(frameCount * 0.05 + this.offset) * 30;
+                
+                // Interaction
+                let d = dist(mouseX, mouseY, this.x, this.y);
+                if(d < 100) {
+                    let force = map(d, 0, 100, 5, 0);
+                    this.y += (this.y > mouseY) ? force : -force;
                 }
 
-                this.y -= this.speedY;
-                if(this.y < -20) this.y = rCanvas.height + 20;
-
-                this.history.push({x: this.x, y: this.y});
-                if(this.history.length > 20) this.history.shift();
+                if(this.x > width) this.x = -50;
+            }
+            display() {
+                noStroke();
+                fill(255, 100, 150, 150);
+                textSize(20);
+                text('❤️', this.x, this.y);
             }
         }
 
-        for(let i=0; i<60; i++) hearts.push(new RiverHeart());
-        function animateRiver() {
-            rCtx.clearRect(0,0,rCanvas.width, rCanvas.height);
-            hearts.forEach(h => { h.update(); h.draw(); });
-            requestAnimationFrame(animateRiver);
-        }
-        animateRiver();
-        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchstart', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+        function drawNeonString() {
+            connectionProgress = lerp(connectionProgress, 1, 0.02);
+            let kPos = {x: windowWidth * 0.1 + 35, y: windowHeight * 0.85 + 35};
+            let aPos = {x: windowWidth * 0.9 - 35, y: windowHeight * 0.85 + 35};
 
-        // --- LETTERS REVEAL ---
-        gsap.utils.toArray(".letter").forEach(l => {
-            gsap.to(l, {
-                scrollTrigger: { trigger: l, start: "top 90%" },
-                opacity: 1, scale: 1, z: 0, duration: 1.5, ease: "power4.out"
-            });
-        });
+            noFill();
+            strokeWeight(4);
+            
+            // Glowing String
+            beginShape();
+            stroke(255, 255, 255, 50);
+            for(let t=0; t<=connectionProgress; t+=0.01) {
+                let x = lerp(kPos.x, aPos.x, t);
+                let y = lerp(kPos.y, aPos.y, t) + sin(t * PI + frameCount * 0.1) * 20;
+                vertex(x, y);
+            }
+            endShape();
 
-        // --- K & A CONNECTION ---
-        let tapped = { K: false, A: false };
-        const sCanvas = document.getElementById('string-canvas');
-        const sCtx = sCanvas.getContext('2d');
-        sCanvas.width = window.innerWidth;
-        sCanvas.height = window.innerHeight;
-
-        function tapBall(id) {
-            tapped[id] = true;
-            document.getElementById('bgMusic').play();
-            if(tapped.K && tapped.A) connectStrings();
-        }
-
-        let pulseVal = 0;
-        function connectStrings() {
-            gsap.to({}, { duration: 100, onUpdate: () => {
-                sCtx.clearRect(0,0,sCanvas.width, sCanvas.height);
-                let kRect = document.getElementById('ballK').getBoundingClientRect();
-                let aRect = document.getElementById('ballA').getBoundingClientRect();
+            // Heartbeat Pulse
+            if(connectionProgress > 0.95) {
+                pulsePos += 0.02;
+                if(pulsePos > 1) pulsePos = 0;
                 
-                let startX = kRect.left + 40, startY = kRect.top + 40;
-                let endX = aRect.left + 40, endY = aRect.top + 40;
-
-                pulseVal += 0.05;
-                let wave = Math.sin(pulseVal) * 10;
-
-                sCtx.beginPath();
-                sCtx.moveTo(startX, startY);
-                sCtx.bezierCurveTo(startX+50, startY+wave, endX-50, endY-wave, endX, endY);
-                sCtx.strokeStyle = pulseVal % 6 < 3 ? 'var(--blue)' : 'var(--p1)';
-                sCtx.lineWidth = 4;
-                sCtx.stroke();
-            }});
+                let px = lerp(kPos.x, aPos.x, pulsePos);
+                let py = lerp(kPos.y, aPos.y, pulsePos) + sin(pulsePos * PI + frameCount * 0.1) * 20;
+                
+                fill(pulsePos < 0.5 ? '#00d4ff' : '#ff0055');
+                noStroke();
+                circle(px, py, 12);
+                // After 3 seconds of connection, show heart
+                if(frameCount % 300 == 0) triggerBigHeart();
+            }
         }
 
-        // --- FINAL PROPOSAL ---
-        function openHeart() {
-            document.getElementById('overlay').style.display = 'flex';
-            showStep1();
+        function activate(type) {
+            if(type === 'k') activeK = true;
+            if(type === 'a') activeA = true;
+            
+            // Cool message reveal on interaction
+            let msgs = document.querySelectorAll('.cool-msg');
+            msgs.forEach((m, i) => {
+                setTimeout(() => m.classList.add('show'), i * 1000);
+            });
         }
 
-        function showStep1() {
-            const content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <h1 style="font-size: 5rem;">💔</h1>
-                <h2 style="font-family: 'Pacifico'; margin: 20px 0;">Agrima, I Love You! ❤️</h2>
-                <p>Will you be mine forever?</p>
-                <button id="yes-btn" class="btn" onclick="sayYes()">YES!</button>
-                <button id="wait-btn" class="btn" onclick="sayWait()">Wait</button>
+        function triggerBigHeart() {
+            gsap.to("body", { backgroundColor: "#800", duration: 1 });
+            setTimeout(() => {
+                document.getElementById('final-overlay').style.display = 'flex';
+            }, 1000);
+        }
+
+        function waitFlow() {
+            let overlay = document.getElementById('final-overlay');
+            overlay.innerHTML = `
+                <h1 style="font-size:3rem">🥺</h1>
+                <h3>Kab tak wait karwaoge?</h3>
+                <button class="btn" onclick="alert('I will wait for you forever...')">2 Saal</button>
+                <button class="btn" onclick="alert('I will wait for you forever...')">9 Saal</button>
             `;
         }
 
-        function sayWait() {
-            const content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <h1 style="font-size: 4rem;">🥺</h1>
-                <h2>Kab tak wait karwaoge?</h2>
-                <button class="btn" style="background:#eee; color:#333" onclick="finalWait('2 saal')">2 saal</button>
-                <button class="btn" style="background:#eee; color:#333" onclick="finalWait('9 saal')">9 saal</button>
-            `;
-        }
-
-        function finalWait(time) {
-            const content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <h1 style="font-size: 4rem;">😌</h1>
-                <h2>Okay, I'll wait for you for ${time}... <br>But my love remains yours.</h2>
-                <button class="btn" onclick="location.reload()" style="background:var(--p1); color:white; margin-top:20px;">❤️</button>
-            `;
-        }
-
-        function sayYes() {
+        function celebrate() {
             confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
-            const content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <h1 style="font-size: 5rem;">💖🥰💖</h1>
-                <h2 style="font-family: 'Pacifico';">Best Day Ever!</h2>
-                <p>Kunal ❤️ Agrima Forever.</p>
-            `;
+            document.getElementById('final-overlay').innerHTML = `<h1 style="font-family:'Pacifico'; font-size:4rem">Forever Yours! ❤️</h1>`;
         }
     </script>
 </body>
