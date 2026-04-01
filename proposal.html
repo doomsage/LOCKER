@@ -106,17 +106,28 @@
         /* Container for No and Wait buttons to keep them in place */
         .dynamic-btn-container { position: relative; width: 100px; height: 50px; }
 
+        /* No Button */
         .btn-no { 
             background: #ffe5ec; color: #ff4d6d; position: absolute; 
             top: 0; left: 0; width: 100px; height: 100%; border: 2px solid #ffb3c1;
         }
 
-        .btn-wait {
+        /* Dropping Wait Button */
+        #btn-wait-drop {
             background: #ffb3c1; color: white; position: absolute;
-            top: 0; left: 0; width: 100px; height: 100%; display: none;
+            top: 0; left: 0; width: 100%; height: 100%; display: none;
+            box-shadow: 0 5px 15px rgba(255,179,193,0.5);
+            border-radius: 50px; font-family: 'Quicksand', sans-serif; 
+            font-weight: 700; font-size: 18px; border: none; cursor: pointer;
+        }
+        #btn-wait-drop:active { transform: scale(0.9); }
+
+        /* Normal Option Buttons (2 saal, 9 saal) */
+        .btn-option {
+            background: #ffb3c1; color: white;
             box-shadow: 0 5px 15px rgba(255,179,193,0.5);
         }
-        .btn-wait:active { transform: scale(0.9); }
+        .btn-option:active { transform: scale(0.9); }
 
         @keyframes bounceIn {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -180,7 +191,7 @@
                 <button class="btn btn-yes" onclick="celebrate()">YES! ❤️</button>
                 <div class="dynamic-btn-container">
                     <button class="btn btn-no" id="btn-no">Nahi</button>
-                    <button class="btn btn-wait" id="btn-wait" onclick="showWaitStage()">Wait</button>
+                    <button id="btn-wait-drop" onclick="showWaitStage()">Wait</button>
                 </div>
             </div>
         </div>
@@ -193,10 +204,12 @@
             <h1>Wait?</h1>
             <p>Aise kaise wait? Kab tak wait karwaoge mujhe?</p>
             
+            <!-- Buttons fixed display -->
             <div class="btn-group" style="margin-top: 20px;">
-                <button class="btn btn-wait" style="display:block; width:auto;" onclick="finalWaitReply('2 Saal')">2 Saal</button>
-                <button class="btn btn-wait" style="display:block; width:auto;" onclick="finalWaitReply('9 Saal')">9 Saal</button>
+                <button class="btn btn-option" onclick="finalWaitReply('2 Saal')">2 Saal</button>
+                <button class="btn btn-option" onclick="finalWaitReply('9 Saal')">9 Saal</button>
             </div>
+            
             <p id="wait-msg" style="margin-top: 20px; font-size: 18px; color: #ff4d6d; font-family: 'Pacifico'; font-weight: normal;"></p>
         </div>
     </div>
@@ -313,10 +326,10 @@
 
         // --- STAGE 4: NO BUTTON ESCAPE & WAIT BUTTON DROP ---
         function startNoButtonEscape() {
-            // Wait exactly 1.5 seconds bina user ke kuch kiye
+            // Wait exactly 3.0 seconds bina user ke kuch kiye
             setTimeout(() => {
                 const noBtn = document.getElementById('btn-no');
-                const waitBtn = document.getElementById('btn-wait');
+                const waitBtnDrop = document.getElementById('btn-wait-drop');
                 
                 // 1. "No" button tezi se hawa mein udd ke gayab hoga (Spin and fly up-right)
                 gsap.to(noBtn, {
@@ -331,15 +344,15 @@
                         noBtn.style.display = 'none'; // DOM se hata do (hide)
                         
                         // 2. Uske theek baad "Wait" button upar se tapkega
-                        waitBtn.style.display = 'block';
-                        gsap.fromTo(waitBtn, 
+                        waitBtnDrop.style.display = 'block';
+                        gsap.fromTo(waitBtnDrop, 
                             { y: -200, opacity: 0 }, 
                             { y: 0, opacity: 1, duration: 0.8, ease: "bounce.out" }
                         );
                     }
                 });
 
-            }, 1500); // 1.5 second ka timer
+            }, 3000); // 3 second ka timer update ho gaya hai
         }
 
         // --- STAGE 5: WAIT LOGIC ---
@@ -348,7 +361,8 @@
         }
 
         function finalWaitReply(time) {
-            document.getElementById('wait-msg').innerText = `Okay, I'll wait for you for ${time}... Kyunki tumhare siwa koi option hi nahi hai. ❤️`;
+            // Text updated to "Tum nahi to koi nahi."
+            document.getElementById('wait-msg').innerHTML = `Okay, I'll wait for you for ${time}...<br>Kyunki Tum nahi to koi nahi. ❤️`;
             gsap.fromTo("#wait-msg", {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 1});
         }
 
@@ -387,4 +401,3 @@
 </html>
 
 
-                                                                                       
