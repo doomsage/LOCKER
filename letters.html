@@ -3,194 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Magical Letters | Agrima</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <title>Ancient Scrolls | Agrima</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
+
     <style>
         :root {
-            --gold: #d4af37;
-            --paper: #f4e4bc;
-            --dark-bg: #0a0a0c;
+            --gold-glow: rgba(212, 175, 55, 0.4);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--dark-bg);
-            background-image: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+            background: #050505; /* Pitch Black for Magic Contrast */
             height: 100vh;
             overflow: hidden;
+            perspective: 2000px;
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 1500px; /* Essential for 3D depth */
         }
 
-        /* Magical Particles Background */
-        #dust {
-            position: fixed; inset: 0; pointer-events: none;
+        /* Magical Smoke/Fog Background */
+        .fog {
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at 50% 50%, #1a0a15 0%, #050505 100%);
+            z-index: -1;
         }
 
-        .letter-scene {
+        /* The Letter Container */
+        .scroll-container {
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transform-style: preserve-3d;
         }
 
-        .parchment {
+        .scroll {
             position: absolute;
-            width: 280px;
-            min-height: 380px;
-            background: var(--paper);
-            background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), inset 0 0 50px rgba(0,0,0,0.1);
-            border: 2px solid var(--gold);
-            opacity: 0;
-            transform: translateZ(-1000px) rotateY(45deg); /* Start from deep inside */
+            width: 320px;
+            height: 450px;
+            /* Ancient Paper Texture Image */
+            background: url('https://img.freepik.com/free-photo/vintage-paper-texture-background_53876-127633.jpg?t=st=1711963200~exp=1711966800~hmac=50e487198756987654321') no-repeat center center;
+            background-size: cover;
+            padding: 40px;
+            border-radius: 2px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--gold-glow);
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            /* To make text look burnt in */
+            filter: sepia(0.3) contrast(1.1);
+        }
+
+        .scroll h2 {
+            font-family: 'Cinzel Decorative', cursive;
+            color: #4a2c0f;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
+        }
+
+        .scroll p {
+            font-family: 'Dancing Script', cursive;
+            color: #2b1b0a;
+            font-size: 1.6rem;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        /* Floating Sparks */
+        .spark {
+            position: absolute; width: 4px; height: 4px;
+            background: #d4af37; border-radius: 50%;
+            box-shadow: 0 0 10px #d4af37;
             pointer-events: none;
         }
 
-        .parchment h2 {
-            font-family: 'Cinzel', serif;
-            color: #4a3721;
-            font-size: 1.4rem;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(74, 55, 33, 0.3);
-        }
-
-        .parchment p {
-            font-family: 'Dancing Script', cursive;
-            color: #2c1e0f;
-            font-size: 1.5rem;
-            line-height: 1.4;
-        }
-
-        .back-btn {
+        .back-link {
             position: fixed; top: 20px; left: 20px; z-index: 1000;
-            color: var(--gold); text-decoration: none; font-family: 'Cinzel';
-            padding: 10px; border: 1px solid var(--gold); border-radius: 5px;
-        }
-
-        .magic-glow {
-            position: absolute; width: 100%; height: 100%;
-            box-shadow: 0 0 20px var(--gold);
-            opacity: 0.3; pointer-events: none;
+            color: #d4af37; font-family: 'Cinzel Decorative'; text-decoration: none;
+            border: 1px solid #d4af37; padding: 8px 15px; font-size: 12px;
         }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-btn">← Back</a>
-    <canvas id="dust"></canvas>
+    <div class="fog"></div>
+    <a href="index.html" class="back-link">← Return</a>
 
-    <div class="letter-scene" id="scene">
-        </div>
+    <div class="scroll-container" id="main-container"></div>
 
     <script>
-        const messages = [
-            { title: "Dear Agrima", text: "Is jadu bhari raat mein, sirf tumhari yaad hai..." },
-            { title: "Unspoken", text: "Tumhari smile kisi purani kahani ke jadu jaisi hai." },
-            { title: "Always", text: "Har ek page par sirf tumhara naam likha hai." },
-            { title: "Connection", text: "Kunal ❤️ Agrima: A Story Forever." }
+        const data = [
+            { h: "The Prophecy", p: "Agrima, tumhare aane se meri duniya mein noor aa gaya..." },
+            { h: "Enchanted", p: "Tumhari aankhon mein wo jadu hai jo waqt rok deta hai." },
+            { h: "Destiny", p: "Kunal aur Agrima ki kahani sitaron mein likhi hai." },
+            { h: "The Secret", p: "Mera har ek din tumhare bina adhoora hai, Agrima." },
+            { h: "Eternal", p: "Ye panna kabhi khatam nahi hoga, kyunki mera pyaar anant hai." }
         ];
 
-        let currentIdx = 0;
+        let index = 0;
 
-        function createParchment(msg) {
-            const div = document.createElement('div');
-            div.className = 'parchment';
-            div.innerHTML = `
-                <div class="magic-glow"></div>
-                <h2>${msg.title}</h2>
-                <p>${msg.text}</p>
+        function spawnScroll() {
+            const container = document.getElementById('main-container');
+            const scroll = document.createElement('div');
+            scroll.className = 'scroll';
+            scroll.innerHTML = `
+                <h2>${data[index].h}</h2>
+                <p>${data[index].p}</p>
             `;
-            document.getElementById('scene').appendChild(div);
+            container.appendChild(scroll);
 
-            // GSAP 3D Fly-In Animation
-            gsap.to(div, {
-                opacity: 1,
-                z: 0, // Comes to the front
-                rotateY: 0,
-                duration: 2.5,
-                ease: "power2.out",
+            // Infinite Cinematic Movement (Z-Axis flow)
+            // Start from very far back, move past the user
+            const tl = gsap.timeline({
                 onComplete: () => {
-                    // Floating effect
-                    gsap.to(div, { y: "-=15", duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut" });
-                    
-                    // Automatically fly away after 4 seconds to make space for next
-                    setTimeout(() => {
-                        gsap.to(div, {
-                            z: 1000, // Flies past the camera
-                            opacity: 0,
-                            scale: 1.5,
-                            duration: 2,
-                            onComplete: () => div.remove()
-                        });
-                        showNext();
-                    }, 4000);
+                    scroll.remove();
+                    // Spawning next one immediately for "Non-stop" feel
                 }
+            });
+
+            tl.fromTo(scroll, 
+                { z: -2000, opacity: 0, rotateY: 45, rotateX: 10, x: gsap.utils.random(-100, 100) },
+                { 
+                    z: 1000, 
+                    opacity: 1, 
+                    rotateY: -20, 
+                    duration: 6, // Slow and majestic
+                    ease: "none",
+                    // Increase opacity quickly, then stay visible, then fade as it passes
+                    onUpdate: function() {
+                        const progress = this.progress();
+                        if(progress > 0.8) gsap.set(scroll, { opacity: 1 - (progress - 0.8) * 5 });
+                    }
+                }
+            );
+
+            index = (index + 1) % data.length;
+            
+            // Interval for the next scroll - makes them overlap beautifully
+            setTimeout(spawnScroll, 3000);
+        }
+
+        // Sparks Particle System
+        function createSparks() {
+            for(let i=0; i<30; i++) {
+                let s = document.createElement('div');
+                s.className = 'spark';
+                document.body.appendChild(s);
+                animateSpark(s);
+            }
+        }
+
+        function animateSpark(el) {
+            gsap.set(el, { x: Math.random() * window.innerWidth, y: window.innerHeight + 10 });
+            gsap.to(el, {
+                y: -50,
+                x: "+=" + gsap.utils.random(-100, 100),
+                duration: gsap.utils.random(3, 7),
+                repeat: -1,
+                ease: "none",
+                delay: Math.random() * 5
             });
         }
 
-        function showNext() {
-            if (currentIdx < messages.length) {
-                createParchment(messages[currentIdx]);
-                currentIdx++;
-            } else {
-                // Loop or finish
-                currentIdx = 0;
-                setTimeout(showNext, 1000);
-            }
-        }
-
-        // Start the sequence
         window.onload = () => {
-            showNext();
-            initDust();
+            spawnScroll();
+            createSparks();
         };
-
-        // Magical Dust Particles
-        function initDust() {
-            const canvas = document.getElementById('dust');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            let particles = [];
-            for(let i=0; i<80; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2,
-                    speed: Math.random() * 0.5
-                });
-            }
-
-            function animate() {
-                ctx.clearRect(0,0, canvas.width, canvas.height);
-                ctx.fillStyle = "rgba(212, 175, 55, 0.5)";
-                particles.forEach(p => {
-                    p.y -= p.speed;
-                    if(p.y < 0) p.y = canvas.height;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                    ctx.fill();
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
     </script>
 </body>
 </html>
