@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Cosmic ECG Connection | Kunal & Agrima</title>
+    <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
@@ -11,12 +12,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* Phone par tap highlight aur selection disable karne ke liye */
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
 
         body {
-            /* Pure dark cosmic universe background */
+            /* Real Deep Space Black Background */
             background-color: #000000;
             background-image: radial-gradient(circle at center, #0a0a1a 0%, #000000 100%);
             overflow: hidden;
@@ -46,6 +48,7 @@
             align-items: center;
         }
 
+        /* Positions for left and right */
         #nodeK-container { left: 10%; }
         #nodeA-container { right: 10%; }
 
@@ -65,20 +68,21 @@
             background: #000;
         }
 
-        /* Kunal Node (Blue) */
+        /* Kunal Node (Blue Energy) */
         #nodeK {
             color: #00d4ff;
             border: 2px solid #00d4ff;
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), inset 0 0 10px rgba(0, 212, 255, 0.4);
         }
 
-        /* Agrima Node (Pink/Red) */
+        /* Agrima Node (Pink Energy) */
         #nodeA {
             color: #ff4d6d;
             border: 2px solid #ff4d6d;
             box-shadow: 0 0 20px rgba(255, 77, 109, 0.6), inset 0 0 10px rgba(255, 77, 109, 0.4);
         }
 
+        /* Hint Text */
         .tap-label {
             margin-top: 15px;
             font-size: 11px;
@@ -90,7 +94,7 @@
 
         @keyframes pulseText { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
-        /* Node Heartbeat Animation (Scale) */
+        /* Dhadkan Animation (Node Beat) */
         @keyframes nodeBeat {
             0% { transform: scale(1); box-shadow: 0 0 20px currentColor; }
             15% { transform: scale(1.3); box-shadow: 0 0 40px currentColor; }
@@ -100,6 +104,7 @@
         }
         .beat { animation: nodeBeat 0.8s ease-in-out; }
 
+        /* Sahi Back Button (Jo index.html par jayega) */
         .back-btn {
             position: fixed;
             top: 20px;
@@ -120,15 +125,18 @@
 </head>
 <body>
 
-    <a href="transition.html" class="back-btn">← Back</a>
+    <!-- Back dabaane par main page khulega -->
+    <a href="index.html" class="back-btn">← Menu</a>
 
     <canvas id="stringCanvas"></canvas>
 
+    <!-- KUNAL NODE -->
     <div id="nodeK-container" class="node-container">
         <div id="nodeK" class="node">K</div>
         <div id="labelK" class="tap-label">TAP ME</div>
     </div>
 
+    <!-- AGRIMA NODE -->
     <div id="nodeA-container" class="node-container">
         <div id="nodeA" class="node">A</div>
         <div id="labelA" class="tap-label">TAP ME</div>
@@ -148,37 +156,46 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // --- STATES ---
+        // --- INTERACTION STATES ---
         let kActive = false;
         let aActive = false;
+        let progK = 0; // K ki string kitni aage badhi (0 to 1)
+        let progA = 0; // A ki string kitni aage badhi (0 to 1)
+        
         let connected = false;
-        let connectionProgress = 0; // 0 to 1
-
         let pulseActive = false;
-        let pulseT = 0; // 0 (K) to 1 (A)
+        let pulseT = 0; // ECG wave ki position (0 to 1)
         let pulseDirection = 1; // 1 = K to A, -1 = A to K
 
-        // Node Positions
-        let posK = { x: cw * 0.10 + 30, y: ch * 0.5 };
-        let posA = { x: cw * 0.90 - 30, y: ch * 0.5 };
+        // Nodes ki fixed positions
+        let posK = { x: 0, y: 0 };
+        let posA = { x: 0, y: 0 };
 
-        // --- MULTIPLE ENERGY STRINGS SETUP ---
-        // 1 Main ECG string + 4 Ambient glowing strings
+        // --- BACKGROUND STARS ---
+        const stars = [];
+        for(let i=0; i<150; i++) {
+            stars.push({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                s: Math.random() * 1.5,
+                alpha: Math.random() * 0.5 + 0.1
+            });
+        }
+
+        // --- STRINGS DATA (Multiple Energy Lines) ---
         const strings = [
-            { isECG: true, amp: 20, freq: 1.5, phase: 0, width: 4, alpha: 1 },
-            { isECG: false, amp: 50, freq: 2.1, phase: Math.PI/2, width: 2, alpha: 0.4 },
-            { isECG: false, amp: -60, freq: 1.8, phase: Math.PI, width: 2, alpha: 0.3 },
-            { isECG: false, amp: 30, freq: 2.5, phase: Math.PI*1.5, width: 1.5, alpha: 0.5 },
-            { isECG: false, amp: -40, freq: 3.0, phase: Math.PI/4, width: 1, alpha: 0.6 }
+            { isECG: true, color: '#ffffff', width: 3, glow: 15, freq: 1, amp: 0, phase: 0 },
+            { isECG: false, color: '#00d4ff', width: 2, glow: 10, freq: 3, amp: 30, phase: 0 },
+            { isECG: false, color: '#ff4d6d', width: 2, glow: 10, freq: 4, amp: -40, phase: 1 },
+            { isECG: false, color: '#b100ff', width: 1.5, glow: 8, freq: 2, amp: 20, phase: 2 }
         ];
 
-        // --- INTERACTION ---
+        // --- EVENT LISTENERS ---
         document.getElementById('nodeK').addEventListener('click', () => {
             if(kActive) return;
             kActive = true;
             document.getElementById('labelK').style.opacity = 0;
             triggerBeat('K');
-            checkConnection();
         });
 
         document.getElementById('nodeA').addEventListener('click', () => {
@@ -186,193 +203,172 @@
             aActive = true;
             document.getElementById('labelA').style.opacity = 0;
             triggerBeat('A');
-            checkConnection();
         });
-
-        function checkConnection() {
-            if (kActive && aActive && !connected) {
-                setTimeout(() => { connected = true; }, 400); // Thoda ruk kar connect hoga
-            }
-        }
 
         function triggerBeat(nodeId) {
             let el = document.getElementById('node' + nodeId);
             el.classList.remove('beat');
-            void el.offsetWidth; // Force reflow
+            void el.offsetWidth; // Reflow for restart animation
             el.classList.add('beat');
         }
 
-        // --- MATH: BEZIER POINT ---
-        function getBezierPoint(t, p0, p1, p2, p3) {
-            let cX = 3 * (p1.x - p0.x), bX = 3 * (p2.x - p1.x) - cX, aX = p3.x - p0.x - cX - bX;
-            let x = (aX * Math.pow(t, 3)) + (bX * Math.pow(t, 2)) + (cX * t) + p0.x;
-            let cY = 3 * (p1.y - p0.y), bY = 3 * (p2.y - p1.y) - cY, aY = p3.y - p0.y - cY - bY;
-            let y = (aY * Math.pow(t, 3)) + (bY * Math.pow(t, 2)) + (cY * t) + p0.y;
-            return { x, y };
-        }
-
-        // --- MATH: REAL ECG WAVEFORM (_/\_) ---
-        function getEcgOffset(dt) {
-            // dt is the distance from the pulse center. Range approx -0.1 to 0.1
-            let x = dt * 100; // Stretch it to make mathematical peaks easier
+        // --- MATHEMATICAL ECG WAVE FUNCTION (_/\_) ---
+        // Ye function real P-Q-R-S-T wave draw karta hai
+        function ecgWave(d) {
+            let x = d * 60; // Spread of the pulse
+            if (x > 4 || x < -4) return 0; // Flat line outside pulse
             
-            // x > 0 is the FRONT of the wave (moving forward)
-            // x < 0 is the TAIL of the wave
+            // P wave (Chota bump aage)
+            if (x > 1.5 && x < 3) return -8 * Math.sin((x - 1.5) * Math.PI / 1.5);
+            // Q dip (Halka sa neeche)
+            if (x > 0.5 && x <= 1.5) return 12 * Math.sin((1.5 - x) * Math.PI);
+            // R spike (Sabse bada upward spike)
+            if (x > -0.5 && x <= 0.5) return -70 * Math.cos(x * Math.PI);
+            // S dip (Spike ke baad neeche jana)
+            if (x > -1.5 && x <= -0.5) return 20 * Math.sin((x + 1.5) * Math.PI);
+            // T wave (Pichhe ka ek aur bump)
+            if (x > -3.5 && x <= -1.5) return -12 * Math.sin((x + 3.5) * Math.PI / 2);
             
-            if (x < -5 || x > 5) return 0; // Baseline
-
-            // T-wave (Small bump at the back)
-            if (x >= -4.5 && x < -2.5) return -12 * Math.sin((x + 4.5) * Math.PI / 2);
-            
-            // S-wave (Dip down after spike)
-            if (x >= -2 && x < -1) return 25 * (x + 2); // Goes down to Y=25
-            
-            // R-wave (The HUGE upward spike)
-            if (x >= -1 && x < 0) return 25 - 115 * (x + 1); // Shoots UP to Y=-90
-            
-            // Q-wave (Dip before spike)
-            if (x >= 0 && x < 1) return -90 + 105 * x; // Shoots DOWN to Y=15
-            if (x >= 1 && x < 1.5) return 15 - 30 * (x - 1); // Back to baseline Y=0
-            
-            // P-wave (Small bump at the front)
-            if (x >= 2.5 && x < 4.5) return -8 * Math.sin((x - 2.5) * Math.PI / 2);
-
             return 0;
         }
 
-        // --- MAIN ANIMATION LOOP ---
-        function draw() {
-            // Dark trail effect for glowing neon strings
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.fillRect(0, 0, cw, ch);
-
-            posK = { x: cw * 0.10 + 30, y: ch * 0.5 };
-            posA = { x: cw * 0.90 - 30, y: ch * 0.5 };
-
-            let time = Date.now() * 0.002;
+        // --- DRAW FUNCTIONS ---
+        
+        // Jab strings connect ho rahi hoti hain
+        function drawTendril(start, end, progress, str, time, dir) {
+            ctx.beginPath();
+            ctx.lineWidth = str.width;
+            ctx.lineCap = 'round';
+            ctx.shadowBlur = str.glow;
+            ctx.shadowColor = str.color;
+            ctx.strokeStyle = str.color;
             
-            // Floating control points for the main bezier curve
-            let cp1 = { x: posK.x + (cw * 0.3), y: posK.y + Math.sin(time) * 100 };
-            let cp2 = { x: posA.x - (cw * 0.3), y: posA.y + Math.cos(time * 0.8) * 100 };
-
-            // Draw all strings
-            strings.forEach((str, index) => {
-                ctx.beginPath();
-                ctx.lineCap = 'round';
-                ctx.lineWidth = str.width;
-
-                // Gradient for strings (Blue to Pink)
-                let grad = ctx.createLinearGradient(posK.x, posK.y, posA.x, posA.y);
-                grad.addColorStop(0, `rgba(0, 212, 255, ${str.alpha})`);
-                grad.addColorStop(1, `rgba(255, 77, 109, ${str.alpha})`);
+            // Kitni door tak draw karna hai
+            let targetX = start.x + (end.x - start.x) * progress;
+            let targetY = start.y + (end.y - start.y) * progress;
+            
+            for(let t=0; t<=1; t+=0.02) {
+                let x = start.x + (targetX - start.x) * t;
+                let y = start.y + (targetY - start.y) * t;
                 
-                // Active Pulse string is super bright
-                if (str.isECG) {
-                    grad = ctx.createLinearGradient(posK.x, posK.y, posA.x, posA.y);
-                    grad.addColorStop(0, '#00d4ff');
-                    grad.addColorStop(1, '#ff4d6d');
-                    ctx.shadowBlur = 20;
-                    ctx.shadowColor = pulseDirection === 1 ? '#00d4ff' : '#ff4d6d';
-                } else {
-                    ctx.shadowBlur = 5;
-                    ctx.shadowColor = '#ffffff';
-                }
+                // Wiggle motion (Hawa mein leharana)
+                let wiggle = Math.sin(t * 10 * str.freq + (time * 5 * dir) + str.phase) * str.amp * t;
+                if(str.isECG) wiggle *= 0.1; // Main line ko thoda seedha rakhne ke liye
+                
+                if(t===0) ctx.moveTo(x, y + wiggle);
+                else ctx.lineTo(x, y + wiggle);
+            }
+            ctx.stroke();
+        }
 
-                ctx.strokeStyle = grad;
+        // Jab strings poori jud chuki hain
+        function drawFullConnection(p1, p2, str, time) {
+            ctx.beginPath();
+            ctx.lineWidth = str.width;
+            ctx.lineCap = 'round';
 
-                // 1. Unconnected state (Floating strings)
-                if (!connected) {
-                    if (kActive) {
-                        ctx.moveTo(posK.x, posK.y);
-                        let floatX = posK.x + (cw * 0.3) + Math.sin(time * str.freq + str.phase) * 100;
-                        let floatY = posK.y + Math.cos(time * str.freq) * str.amp * 2;
-                        ctx.quadraticCurveTo(posK.x + 50, posK.y + str.amp, floatX, floatY);
-                        ctx.stroke();
-                    }
-                    if (aActive) {
-                        ctx.beginPath();
-                        ctx.moveTo(posA.x, posA.y);
-                        let floatX = posA.x - (cw * 0.3) + Math.cos(time * str.freq + str.phase) * 100;
-                        let floatY = posA.y + Math.sin(time * str.freq) * str.amp * 2;
-                        ctx.quadraticCurveTo(posA.x - 50, posA.y - str.amp, floatX, floatY);
-                        ctx.stroke();
-                    }
-                } 
-                // 2. Connected state (Joined strings + ECG)
-                else {
-                    if (connectionProgress < 1) connectionProgress += 0.005; // Lines joining speed
-                    else if (!pulseActive && str.isECG) pulseActive = true;
+            // Gradient colors (Blue se Pink)
+            let grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+            grad.addColorStop(0, '#00d4ff');
+            grad.addColorStop(1, '#ff4d6d');
 
-                    let step = str.isECG ? 0.002 : 0.02; // High resolution for ECG, low for ambient
-                    ctx.moveTo(posK.x, posK.y);
-
-                    for (let t = 0; t <= connectionProgress; t += step) {
-                        let pt = getBezierPoint(t, posK, cp1, cp2, posA);
-                        
-                        let yOffset = 0;
-
-                        // Ambient string waves
-                        if (!str.isECG) {
-                            yOffset = Math.sin(t * Math.PI * str.freq + time + str.phase) * str.amp;
-                        } 
-                        // The Real ECG Wave logic
-                        else if (pulseActive) {
-                            // Calculate distance from pulse center
-                            let dt = pulseDirection === 1 ? (t - pulseT) : (pulseT - t);
-                            yOffset = getEcgOffset(dt);
-                        }
-
-                        ctx.lineTo(pt.x, pt.y + yOffset);
-                    }
-                    ctx.stroke();
-                }
-            });
-
-            // 3. Update ECG Pulse Position
-            if (pulseActive && connected) {
-                pulseT += 0.008 * pulseDirection; // Pulse traveling speed
-
-                // When pulse reaches Agrima
-                if (pulseT >= 1) {
-                    pulseT = 1;
-                    pulseDirection = -1; // Reflect back
-                    triggerBeat('A');
-                } 
-                // When pulse reaches Kunal
-                else if (pulseT <= 0) {
-                    pulseT = 0;
-                    pulseDirection = 1; // Reflect forward
-                    triggerBeat('K');
-                }
+            ctx.strokeStyle = str.isECG ? grad : str.color;
+            
+            // ECG pulse ke glow ko direction ke hisaab se color dena
+            if (str.isECG && pulseActive) {
+                ctx.shadowColor = pulseDirection === 1 ? '#00d4ff' : '#ff4d6d';
+                ctx.shadowBlur = 25;
+            } else {
+                ctx.shadowColor = str.color;
+                ctx.shadowBlur = str.glow;
             }
 
-            requestAnimationFrame(draw);
+            // Line draw karna
+            for (let t = 0; t <= 1; t += 0.005) { // Precision for smooth ECG
+                let x = p1.x + (p2.x - p1.x) * t;
+                let y = p1.y + (p2.y - p1.y) * t;
+                
+                let yOff = 0;
+                
+                if (str.isECG && pulseActive) {
+                    // Calculate distance from the traveling pulse
+                    let d = t - pulseT; 
+                    // ECG wave ko direction ke hisaab se flip karna taaki sahi lage
+                    yOff = ecgWave(d * pulseDirection); 
+                } else if (!str.isECG) {
+                    // Ambient strings ki wave
+                    yOff = Math.sin(t * 10 * str.freq + time + str.phase) * str.amp;
+                }
+                
+                if (t === 0) ctx.moveTo(x, y + yOff);
+                else ctx.lineTo(x, y + yOff);
+            }
+            ctx.stroke();
         }
 
-        // Add some random static background stars
-        const bgStars = [];
-        for(let i=0; i<100; i++) {
-            bgStars.push({
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                s: Math.random() * 1.5
-            });
-        }
-        function drawBgStars() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-            bgStars.forEach(s => {
+        // --- MAIN ANIMATION LOOP ---
+        function animate() {
+            // Trail effect (Glowing motion blur)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, cw, ch);
+            
+            // Draw Background Stars
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 0;
+            stars.forEach(s => {
+                ctx.globalAlpha = s.alpha;
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.s, 0, Math.PI*2);
                 ctx.fill();
             });
+            ctx.globalAlpha = 1; // Reset
+
+            // Update node positions based on screen size
+            posK = { x: cw * 0.10 + 30, y: ch / 2 };
+            posA = { x: cw * 0.90 - 30, y: ch / 2 };
+            let center = { x: cw / 2, y: ch / 2 };
+            let time = Date.now() * 0.002;
+
+            // Update Connection Progress
+            if (kActive && progK < 1) progK += 0.015;
+            if (aActive && progA < 1) progA += 0.015;
+
+            if (progK >= 1 && progA >= 1 && !connected) {
+                connected = true;
+                pulseActive = true; // Connection hote hi heartbeat shuru
+            }
+
+            // Draw Strings
+            strings.forEach(str => {
+                if (!connected) {
+                    // Agar abhi connect nahi huye hain toh center ki taraf badho
+                    if (progK > 0) drawTendril(posK, center, progK, str, time, 1);
+                    if (progA > 0) drawTendril(posA, center, progA, str, time, -1);
+                } else {
+                    // Poori jud chuki hain
+                    drawFullConnection(posK, posA, str, time);
+                }
+            });
+
+            // Update ECG Pulse traveling logic
+            if (pulseActive) {
+                pulseT += 0.01 * pulseDirection; // Pulse speed
+                
+                if (pulseT >= 1) {
+                    pulseT = 1; 
+                    pulseDirection = -1; // A se wapas K ki taraf
+                    triggerBeat('A'); // Agrima node ko dhadkao
+                } else if (pulseT <= 0) {
+                    pulseT = 0; 
+                    pulseDirection = 1; // K se wapas A ki taraf
+                    triggerBeat('K'); // Kunal node ko dhadkao
+                }
+            }
+
+            requestAnimationFrame(animate);
         }
 
-        // Inject background stars into the loop
-        const originalDraw = draw;
-        draw = function() {
-            originalDraw();
-            drawBgStars();
-        }
+        animate();
 
     </script>
 </body>
