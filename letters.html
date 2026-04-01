@@ -2,208 +2,274 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>The Forbidden Pages | Agrima</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cosmic Letters | Agrima</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <!-- GSAP for 3D Camera Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-        canvas { display: block; }
-        
-        /* Glassmorphism UI */
-        .ui-element {
-            position: fixed; z-index: 100; pointer-events: none; text-align: center;
-        }
-        
-        .back-btn {
-            top: 15px; left: 15px; pointer-events: auto; text-decoration: none;
-            color: #d4af37; font-family: 'Cinzel', serif; font-size: 12px;
-            padding: 8px 15px; background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px); border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 20px; transition: 0.3s;
-        }
-        .back-btn:active { background: rgba(212, 175, 55, 0.2); }
 
+    <style>
+        :root {
+            --gold: #d4af37;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: #000;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            /* Create a 3D space */
+            perspective: 1000px;
+            perspective-origin: center center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- SUPER GALAXY BACKGROUND --- */
+        #galaxy-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* --- 3D SCENE CONTAINER --- */
+        #scene-3d {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            transform-style: preserve-3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- REAL ANCIENT PAPER --- */
+        .ancient-scroll {
+            position: absolute;
+            /* Use a real transparent PNG of old torn paper */
+            background-image: url('https://png.pngtree.com/png-clipart/20230810/original/pngtree-old-paper-texture-vintage-parchment-picture-image_7838575.png');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            /* Responsive sizes for mobile */
+            width: 85vw;
+            max-width: 400px;
+            height: 60vh;
+            max-height: 600px;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10% 15%; /* Keep text inside the paper bounds */
+            
+            /* Add some magical glow around the paper */
+            filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.4));
+            
+            /* Start hidden and far away */
+            opacity: 0;
+            transform: translateZ(-2000px); 
+            will-change: transform, opacity;
+        }
+
+        /* --- TEXT STYLING ON PAPER --- */
+        .scroll-title {
+            font-family: 'Cinzel', serif;
+            color: #4a2c0f; /* Dark brownish-black ink */
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(74, 44, 15, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .scroll-text {
+            font-family: 'Dancing Script', cursive;
+            color: #2b1b0a;
+            font-size: clamp(1.4rem, 6vw, 2.2rem);
+            line-height: 1.4;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* UI */
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            padding: 10px 20px; background: rgba(0, 0, 0, 0.5);
+            color: var(--gold); border: 1px solid var(--gold);
+            border-radius: 20px; text-decoration: none;
+            font-family: 'Cinzel', serif; font-size: 14px;
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="ui-element back-btn">← Back</a>
+    <!-- Space Background -->
+    <canvas id="galaxy-canvas"></canvas>
+
+    <a href="index.html" class="back-btn">← Return</a>
+
+    <!-- Container for flying scrolls -->
+    <div id="scene-3d"></div>
 
     <script>
-        let pages = [];
-        let magicAura = [];
-        const maxPages = 4; // Keep it low for mobile FPS
+        // --- 1. SUPER GALAXY BACKGROUND SCRIPT ---
+        const canvas = document.getElementById('galaxy-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        // personalized message titles (Cinzel) and text (Dancing Script) for Agrima
-        const agrimaMsgs = [
-            { h: "Dear Agrima,", t: "Jab tumne pehli baar smile kiya tha, mera dil wahi ruk gaya tha. ❤️" },
-            { h: "A Miracle...", t: "Aap jaisa pyaara insaan sirf kismat walo ko milta hai. ✨" },
-            { h: "Forever?", t: "Har page par main sirf hamare saath ki kahani likhna chahta hoon. Kunal ❤️ Agrima" },
-            { h: "Destiny...", t: "Lagta hai jadu ki iss purani kitab mein humara milna pehle se likha tha. 🥀" },
-            { h: "My Truth:", t: "Main tumhe bohot bohot pyaar karta hoon, Agrima. 🥺" }
+        let stars = [];
+        const numStars = 200;
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                z: Math.random() * canvas.width, // Depth for 3D starfield effect
+                size: Math.random() * 2
+            });
+        }
+
+        function drawGalaxy() {
+            // Create a trailing effect for hyper-speed feel
+            ctx.fillStyle = 'rgba(5, 5, 15, 0.2)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            for (let i = 0; i < stars.length; i++) {
+                let s = stars[i];
+                // Move stars towards the camera
+                s.z -= 2; 
+                
+                // Reset star if it passes the camera
+                if (s.z <= 0) {
+                    s.x = Math.random() * canvas.width;
+                    s.y = Math.random() * canvas.height;
+                    s.z = canvas.width;
+                }
+
+                // Calculate 3D to 2D projection
+                let k = 128.0 / s.z;
+                let px = (s.x - cx) * k + cx;
+                let py = (s.y - cy) * k + cy;
+                
+                // Make stars bigger and brighter as they get closer
+                let pSize = s.size * k;
+
+                if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
+                    // Star glow
+                    ctx.beginPath();
+                    ctx.arc(px, py, pSize, 0, Math.PI * 2);
+                    let intensity = (1 - s.z / canvas.width); // Brighter when closer
+                    ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
+                    ctx.fill();
+                }
+            }
+            requestAnimationFrame(drawGalaxy);
+        }
+        drawGalaxy();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+
+        // --- 2. FLY-THROUGH LETTERS SCRIPT ---
+        const scene = document.getElementById('scene-3d');
+        
+        // Custom messages for Agrima
+        const messages = [
+            { h: "For Agrima", t: "Sitaro ke is samundar mein, tum meri sabse chamakti roshni ho." },
+            { h: "The Magic", t: "Tumhari ek muskaan mere din ki saari thakan mita deti hai." },
+            { h: "A Promise", t: "Chahe ye universe kitna bhi bada ho, mera dil hamesha tumhara rahega." },
+            { h: "Forever", t: "Kunal aur Agrima... Ye kahani kabhi khatam nahi hogi." }
         ];
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            textFont('Dancing Script');
+        let msgIndex = 0;
+
+        function spawnLetter() {
+            // Create the paper element
+            const paper = document.createElement('div');
+            paper.className = 'ancient-scroll';
             
-            // Generate glowing magic smoke particles
-            for(let i=0; i<30; i++) magicAura.push(new MagicAuraParticle());
+            // Add content
+            paper.innerHTML = `
+                <h2 class="scroll-title">${messages[msgIndex].h}</h2>
+                <p class="scroll-text">${messages[msgIndex].t}</p>
+            `;
             
-            // Create first page after setup
-            spawnPage();
-        }
+            scene.appendChild(paper);
 
-        function draw() {
-            // Dark mystical background
-            background(5, 5, 10, 80); 
-
-            // 1. Draw Magic Aura Smoke
-            magicAura.forEach(m => m.update().display());
-
-            // 2. Draw and Manage Pages
-            for(let i = pages.length - 1; i >= 0; i--) {
-                pages[i].update();
-                pages[i].display();
-                
-                // Remove if finished
-                if(pages[i].isFinished()) {
-                    pages.splice(i, 1);
-                    // Spawn next only after one is almost done for flow
-                    if(pages.length < maxPages) spawnPage(); 
+            // GSAP 3D Fly-Through Animation
+            // Timeline allows us to chain animations smoothly
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    // Remove element from DOM after it flies past the camera
+                    paper.remove();
+                    // Immediately spawn the next one to keep the loop going
+                    spawnLetter();
                 }
-            }
-        }
+            });
 
-        function spawnPage() {
-            // Pick a message, loop if needed
-            let msgIdx = floor(frameCount / 250) % agrimaMsgs.length; // Uses frameCount to loop index
-            pages.push(new BurnedPage(agrimaMsgs[msgIdx]));
-        }
-
-        class MagicAuraParticle {
-            constructor() { this.init(); }
-            init() {
-                this.x = random(width); this.y = random(height);
-                this.size = random(50, 150);
-                this.color = color(random(30, 60), 10, random(30, 60), 20); // Deep Purple/Indigo
-            }
-            update() {
-                this.y -= random(0.5, 1);
-                if(this.y < -this.size) this.y = height + this.size;
-                return this;
-            }
-            display() {
-                noStroke(); fill(this.color); circle(this.x, this.y, this.size);
-            }
-        }
-
-        class BurnedPage {
-            constructor(msg) {
-                this.msg = msg;
-                this.init();
-            }
-
-            init() {
-                this.x = width / 2;
-                this.y = height * 1.2; // Start from bottom of screen
-                this.z = random(-100, 100); // 3D depth for overlapping
-                this.speedY = random(-2, -4); // Fly up
-                this.rotX = random(-5, 5); this.rotY = random(-5, 5); // Start rotating
-                this.alpha = 0;
-                this.sizeW = width * random(0.7, 0.85); // Phone Optimized Width
-                this.sizeH = height * 0.45;
-                this.isDone = false;
-                this.lifetime = 0;
-                
-                // Generate irregular torn and burned path points
-                this.pagePoints = [];
-                let step = TWO_PI / 60;
-                for(let a=0; a<TWO_PI; a+=step) {
-                    let r = random(0.92, 1); // 8% irregularity for torn look
-                    this.pagePoints.push({
-                        rad: a,
-                        xOff: cos(a) * this.sizeW/2 * r,
-                        yOff: sin(a) * this.sizeH/2 * r
-                    });
+            // The Animation Sequence
+            tl.fromTo(paper, 
+                // STARTING POINT: Deep inside the screen, invisible, slightly rotated
+                { 
+                    z: -2000, 
+                    opacity: 0, 
+                    rotationX: 10, 
+                    rotationY: gsap.utils.random(-15, 15) // Slight random tilt
+                },
+                // ENDING POINT: Flies right past the camera (+800z is behind the user)
+                {
+                    z: 800, 
+                    rotationX: -10, // Tilts up as it passes
+                    rotationY: 0,
+                    duration: 6, // 6 seconds for one full fly-by (adjust for speed)
+                    ease: "power1.inOut", // Starts slow, speeds up in middle, slows at end
+                    
+                    // Complex Opacity handling during the flight
+                    onUpdate: function() {
+                        const progress = this.progress();
+                        // Fade in quickly at the start
+                        if (progress < 0.2) {
+                            gsap.set(paper, { opacity: progress * 5 }); 
+                        } 
+                        // Stay fully visible in the middle
+                        else if (progress >= 0.2 && progress < 0.8) {
+                            gsap.set(paper, { opacity: 1 });
+                        } 
+                        // Fade out very quickly right before it hits the camera to create the "passing through" effect
+                        else {
+                            gsap.set(paper, { opacity: 1 - ((progress - 0.8) * 5) });
+                        }
+                    }
                 }
-            }
+            );
 
-            update() {
-                this.y += this.speedY;
-                this.rotX += 0.3; this.rotY += 0.2; // 3D spin
-                this.lifetime++;
-
-                // Fade In, Stay, then Fade Out
-                if(this.lifetime < 50) this.alpha = map(this.lifetime, 0, 50, 0, 255);
-                if(this.lifetime > 180) this.alpha = map(this.lifetime, 180, 230, 255, 0);
-
-                // Stop conditions
-                if(this.lifetime > 230 || this.y < height * 0.2) this.isDone = true;
-            }
-
-            display() {
-                if(this.alpha <= 0) return;
-                
-                push();
-                translate(this.x, this.y, this.z); // Apply depth and position
-                // p5.js doesn't have native rotateZ/perspective in standard mode, 
-                // but we simulate depth by overlapping and scale
-                let s = map(this.z, -100, 100, 0.9, 1.1);
-                scale(s);
-
-                // 1. Draw Burned/Torn Edge (Procedural)
-                noStroke();
-                fill(10, 5, 0, this.alpha * 0.9); // Dark burnt color border
-                beginShape();
-                for(let p of this.pagePoints) vertex(p.xOff, p.yOff);
-                endShape(CLOSE);
-
-                // 2. Draw Inner Parchment ( procédures for torn edges)
-                fill(244, 228, 188, this.alpha); // Old paper color
-                beginShape();
-                for(let p of this.pagePoints) {
-                    // Make inner area slightly smaller and with 'burn marks'
-                    vertex(p.xOff * random(0.95, 0.98), p.yOff * random(0.95, 0.98));
-                }
-                endShape(CLOSE);
-
-                // 3. Draw Red Burnt/Glow Edges (Glowing embers effect)
-                stroke(255, 60, 0, map(this.alpha, 0, 255, 0, 100)); // Glowing red edge
-                strokeWeight(random(1, 3)); noFill();
-                beginShape();
-                for(let p of this.pagePoints) vertex(p.xOff * 0.99, p.yOff * 0.99);
-                endShape(CLOSE);
-
-                // 4. Draw personalized Title (Cinzel, Royal Dark Brown Ink)
-                textAlign(CENTER, TOP);
-                textFont('Cinzel');
-                textSize(map(this.sizeW, 0, 400, 22, 28)); // Mobile responsive text
-                fill(74, 55, 33, this.alpha * 0.8);
-                text(this.msg.h, 0, -this.sizeH/2 + 30);
-
-                // 5. Draw personalized Message (Dancing Script, Dark Brown Ink)
-                textFont('Dancing Script');
-                textSize(map(this.sizeW, 0, 400, 20, 26)); // Mobile responsive text
-                fill(44, 30, 15, this.alpha);
-                // Center text block within the page
-                let textY = -this.sizeH/2 + 70;
-                let textH = this.sizeH - 100;
-                textLeading(textSize() * 1.3); // Adjust line height
-                text(this.msg.t, -this.sizeW/2 + 40, textY, this.sizeW - 80, textH);
-
-                pop();
-            }
-
-            isFinished() { return this.isDone; }
+            // Update index for next message
+            msgIndex = (msgIndex + 1) % messages.length;
         }
 
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
-        }
+        // Start the sequence after a slight delay
+        setTimeout(spawnLetter, 500);
+
     </script>
 </body>
 </html>
+
