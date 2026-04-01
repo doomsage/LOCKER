@@ -359,7 +359,7 @@
                 let w_i = ctx.measureText("i").width;
                 
                 let i_center_x = startX + w_agr + (w_i / 2);
-                let i_dot_y = (ch / 2 + 73) - (fontSize * 0.32); // Approximate dot height
+                let i_dot_y = (ch / 2 + 74) - (fontSize * 0.32); // Approximate dot height
 
                 // Draw the word Agrima
                 ctx.fillText("Agrima", cw / 2, ch / 2 + 80);
@@ -372,7 +372,7 @@
                 ctx.fill();
 
                 // Draw the magical Hollow Heart at the dot's position!
-                drawHollowHeart(i_center_x, i_dot_y - 9, fontSize * 0.35, textAlpha);
+                drawHollowHeart(i_center_x, i_dot_y - 20, fontSize * 0.35, textAlpha);
             }
 
             requestAnimationFrame(animate);
