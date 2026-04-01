@@ -3,220 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>For Agrima | Infinite Love</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
+    <title>Agrima & Kunal | Forever</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --p1: #ff758f; --p2: #ffafcc; --p3: #fcd5ce;
-            --white: #ffffff; --text: #590d22;
-        }
-
+        :root { --p1: #ff758f; --p2: #ffafcc; --blue: #00b4d8; --text: #590d22; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #fff0f3; font-family: 'Quicksand', sans-serif; color: var(--text); overflow-x: hidden; }
+
+        section { min-height: 100vh; width: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+
+        /* --- 1. HERO --- */
+        .hero h1 { font-family: 'Pacifico', cursive; font-size: 3.5rem; color: var(--p1); }
         
-        body { 
-            background: var(--p3); 
-            font-family: 'Fredoka One', cursive; 
-            overflow: hidden; /* Phone par scroll hide karke custom feel */
-            height: 100vh; width: 100vw;
+        /* --- 2. HEART RIVER --- */
+        #river-container { height: 100vh; background: #ffe5ec; cursor: crosshair; }
+        #river-canvas { width: 100%; height: 100%; }
+
+        /* --- 3. LOVE LETTERS --- */
+        .letters-container { background: #ffccd5; padding: 50px 0; }
+        .letter { 
+            width: 80%; max-width: 300px; background: white; padding: 20px; 
+            margin: 40px auto; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: scale(0) translateZ(-500px); opacity: 0;
         }
 
-        /* --- 1. THE BIG ENTER BUTTON (Music Trigger) --- */
-        #entry-gate {
-            position: fixed; inset: 0; background: radial-gradient(circle, var(--p2), var(--p1));
-            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; color: white; padding: 20px;
+        /* --- 4. THE K & A BALLS --- */
+        .physics-section { height: 100vh; display: flex; align-items: center; justify-content: space-around; width: 100%; background: #fff; }
+        .ball { 
+            width: 80px; height: 80px; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; font-size: 2rem; color: white;
+            font-weight: bold; cursor: pointer; z-index: 100; position: relative;
         }
-        .touch-btn {
-            width: 120px; height: 120px; background: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 50px;
-            box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        #ballK { background: var(--blue); box-shadow: 0 0 20px var(--blue); }
+        #ballA { background: var(--p1); box-shadow: 0 0 20px var(--p1); }
+        #string-canvas { position: absolute; inset: 0; pointer-events: none; }
 
-        /* --- 2. BACKGROUND ANIMATIONS (Moving Blobs) --- */
-        .blob {
-            position: absolute; width: 200px; height: 200px; background: var(--p2);
-            filter: blur(40px); border-radius: 50%; z-index: 1; opacity: 0.6;
-        }
+        /* --- 5. FINAL HEART --- */
+        #big-heart { font-size: 100px; cursor: pointer; transition: 0.3s; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-        /* --- 3. FLOATING HEART PARTICLES --- */
-        #particle-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 2; }
-
-        /* --- 4. MAIN CONTENT (Phone Optimized) --- */
-        #main-stage {
-            display: none; position: relative; height: 100vh; width: 100vw;
-            flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+        /* --- 6. PROPOSAL POPUP --- */
+        #overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none;
+            z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;
         }
-
-        .agrima-title {
-            font-size: 3rem; color: var(--text); text-align: center;
-            line-height: 1.2; text-shadow: 2px 2px var(--white);
-        }
-
-        .floating-card {
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
-            border-radius: 30px; padding: 20px; margin: 20px; width: 85%;
-            border: 3px solid var(--white); box-shadow: 0 15px 35px rgba(255, 117, 143, 0.3);
-            transform: perspective(1000px) rotateX(10deg);
-        }
-
-        /* --- 5. THE ULTIMATE YES BUTTON --- */
-        .yes-wrap { margin-top: 30px; position: relative; }
-        .huge-yes {
-            background: linear-gradient(45deg, #ff4d6d, #ff85a1);
-            color: white; border: none; padding: 20px 60px; font-size: 2rem;
-            border-radius: 50px; font-family: 'Pacifico', cursive;
-            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.5);
-            cursor: pointer; animation: jiggle 2s infinite;
-        }
-        @keyframes jiggle {
-            0%, 100% { transform: scale(1) rotate(0); }
-            10%, 20% { transform: scale(1.1) rotate(-3deg); }
-            30%, 50%, 70% { transform: scale(1.1) rotate(3deg); }
-            40%, 60% { transform: scale(1.1) rotate(-3deg); }
-        }
-
-        /* Music Bar Animation */
-        .music-visualizer {
-            display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 15px;
-        }
-        .bar { width: 4px; background: var(--p1); animation: equalize 0.8s infinite alternate; }
-        @keyframes equalize { from { height: 5px; } to { height: 25px; } }
-
+        .btn { padding: 15px 40px; border-radius: 50px; border: none; margin: 10px; font-size: 1.2rem; cursor: pointer; }
+        #yes-btn { background: var(--p1); color: white; }
+        #wait-btn { background: #555; color: white; }
+        
+        .fade-in { animation: fadeIn 0.8s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div id="entry-gate" onclick="unlockLove()">
-        <div class="touch-btn">❤️</div>
-        <h2 style="margin-top: 20px; font-family: 'Pacifico';">Agrima, touch the heart...</h2>
-        <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">(Please turn up the volume 🔊)</p>
+    <section class="hero">
+        <h1 id="main-name">Agrima ✨</h1>
+        <p>Scroll down to see the magic...</p>
+    </section>
+
+    <section id="river-container">
+        <canvas id="river-canvas"></canvas>
+        <div style="position: absolute; top: 10px; color: var(--p1);">Touch the flow...</div>
+    </section>
+
+    <section class="letters-container">
+        <div class="letter">Agrima, tumhari smile sabse pyaari hai... ❤️</div>
+        <div class="letter">Har din tumse baat karna meri habit ban gayi hai... 🧸</div>
+        <div class="letter">Tum mere liye bohot special ho... ✨</div>
+    </section>
+
+    <section class="physics-section">
+        <canvas id="string-canvas"></canvas>
+        <div id="ballK" class="ball" onclick="tapBall('K')">K</div>
+        <div id="ballA" class="ball" onclick="tapBall('A')">A</div>
+        <div style="position: absolute; top: 20px;">Tap both letters to connect</div>
+    </section>
+
+    <section>
+        <div id="big-heart" onclick="openHeart()">❤️</div>
+        <p>Tap to Open</p>
+    </section>
+
+    <div id="overlay">
+        <div id="modal-content" class="fade-in" style="text-align: center;">
+            </div>
     </div>
 
-    <canvas id="particle-canvas"></canvas>
-    <div class="blob" id="b1"></div>
-    <div class="blob" id="b2"></div>
-
-    <div id="main-stage">
-        <div class="music-visualizer">
-            <div class="bar" style="animation-delay: 0.1s"></div>
-            <div class="bar" style="animation-delay: 0.3s"></div>
-            <div class="bar" style="animation-delay: 0.2s"></div>
-            <div class="bar" style="animation-delay: 0.4s"></div>
-            <div class="bar" style="animation-delay: 0.1s"></div>
-        </div>
-
-        <h1 class="agrima-title">Hey <br><span style="color: var(--p1); font-family: 'Pacifico';">Agrima!</span></h1>
-
-        <div class="floating-card">
-            <p style="font-size: 1.1rem; line-height: 1.6; text-align: center;">
-                Aapke liye mere paas <b>infinite</b> pyaar hai. <br>
-                Aap meri favorite error ho jise main kabhi fix nahi karna chahta! 🧸✨
-            </p>
-        </div>
-
-        <div class="yes-wrap">
-            <button class="huge-yes" onclick="theGrandFinale()">YES! ❤️</button>
-        </div>
-        
-        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6;">(No button error 404: Not Found)</p>
-    </div>
-
-    <audio id="romanticSong" loop>
+    <audio id="bgMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        // --- UNLOCK FUNCTION ---
-        function unlockLove() {
-            // Play Music
-            const audio = document.getElementById('romanticSong');
-            audio.play().catch(e => console.log("Music blocked, waiting for interaction"));
+        gsap.registerPlugin(ScrollTrigger);
 
-            // Hide Gate
-            gsap.to("#entry-gate", { opacity: 0, duration: 1, onComplete: () => {
-                document.getElementById('entry-gate').style.display = 'none';
-                document.getElementById('main-stage').style.display = 'flex';
-                startUltraAnimations();
+        // --- RIVER ANIMATION ---
+        const rCanvas = document.getElementById('river-canvas');
+        const rCtx = rCanvas.getContext('2d');
+        rCanvas.width = window.innerWidth;
+        rCanvas.height = window.innerHeight;
+
+        let hearts = [];
+        let mouse = { x: -1000, y: -1000 };
+
+        class RiverHeart {
+            constructor() {
+                this.x = Math.random() * rCanvas.width;
+                this.y = Math.random() * rCanvas.height;
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * 2 + 1;
+                this.history = [];
+            }
+            draw() {
+                rCtx.fillStyle = '#ff758f';
+                rCtx.beginPath();
+                rCtx.arc(this.x, this.y, this.size/2, 0, Math.PI*2);
+                rCtx.fill();
+                
+                // Traces
+                this.history.forEach((h, i) => {
+                    rCtx.fillStyle = `rgba(255, 117, 143, ${i/20})`;
+                    rCtx.beginPath();
+                    rCtx.arc(h.x, h.y, (this.size/2)*(i/20), 0, Math.PI*2);
+                    rCtx.fill();
+                });
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 100) {
+                    this.x -= dx/dist * 5;
+                    this.y -= dy/dist * 5;
+                }
+
+                this.y -= this.speedY;
+                if(this.y < -20) this.y = rCanvas.height + 20;
+
+                this.history.push({x: this.x, y: this.y});
+                if(this.history.length > 20) this.history.shift();
+            }
+        }
+
+        for(let i=0; i<60; i++) hearts.push(new RiverHeart());
+        function animateRiver() {
+            rCtx.clearRect(0,0,rCanvas.width, rCanvas.height);
+            hearts.forEach(h => { h.update(); h.draw(); });
+            requestAnimationFrame(animateRiver);
+        }
+        animateRiver();
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('touchstart', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+
+        // --- LETTERS REVEAL ---
+        gsap.utils.toArray(".letter").forEach(l => {
+            gsap.to(l, {
+                scrollTrigger: { trigger: l, start: "top 90%" },
+                opacity: 1, scale: 1, z: 0, duration: 1.5, ease: "power4.out"
+            });
+        });
+
+        // --- K & A CONNECTION ---
+        let tapped = { K: false, A: false };
+        const sCanvas = document.getElementById('string-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        sCanvas.width = window.innerWidth;
+        sCanvas.height = window.innerHeight;
+
+        function tapBall(id) {
+            tapped[id] = true;
+            document.getElementById('bgMusic').play();
+            if(tapped.K && tapped.A) connectStrings();
+        }
+
+        let pulseVal = 0;
+        function connectStrings() {
+            gsap.to({}, { duration: 100, onUpdate: () => {
+                sCtx.clearRect(0,0,sCanvas.width, sCanvas.height);
+                let kRect = document.getElementById('ballK').getBoundingClientRect();
+                let aRect = document.getElementById('ballA').getBoundingClientRect();
+                
+                let startX = kRect.left + 40, startY = kRect.top + 40;
+                let endX = aRect.left + 40, endY = aRect.top + 40;
+
+                pulseVal += 0.05;
+                let wave = Math.sin(pulseVal) * 10;
+
+                sCtx.beginPath();
+                sCtx.moveTo(startX, startY);
+                sCtx.bezierCurveTo(startX+50, startY+wave, endX-50, endY-wave, endX, endY);
+                sCtx.strokeStyle = pulseVal % 6 < 3 ? 'var(--blue)' : 'var(--p1)';
+                sCtx.lineWidth = 4;
+                sCtx.stroke();
             }});
         }
 
-        // --- ULTRA ANIMATIONS (GSAP & Canvas) ---
-        function startUltraAnimations() {
-            // Move Blobs randomly
-            gsap.to("#b1", { x: "80vw", y: "70vh", duration: 10, repeat: -1, yoyo: true, ease: "sine.inOut" });
-            gsap.to("#b2", { x: "-20vw", y: "30vh", duration: 8, repeat: -1, yoyo: true, ease: "sine.inOut" });
-
-            // Floating Card Animation
-            gsap.to(".floating-card", { y: -20, repeat: -1, yoyo: true, duration: 2, ease: "power1.inOut" });
-
-            // Particles
-            const canvas = document.getElementById('particle-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            let particles = [];
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = canvas.height + 50;
-                    this.size = Math.random() * 15 + 5;
-                    this.speedY = Math.random() * 2 + 1;
-                    this.angle = Math.random() * 360;
-                }
-                update() {
-                    this.y -= this.speedY;
-                    this.angle += 1;
-                    if (this.y < -50) this.y = canvas.height + 50;
-                }
-                draw() {
-                    ctx.fillStyle = '#ffafcc';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size/2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            function init() {
-                for (let i = 0; i < 40; i++) particles.push(new Particle());
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => { p.update(); p.draw(); });
-                requestAnimationFrame(animate);
-            }
-            init(); animate();
+        // --- FINAL PROPOSAL ---
+        function openHeart() {
+            document.getElementById('overlay').style.display = 'flex';
+            showStep1();
         }
 
-        // --- GRAND FINALE ---
-        function theGrandFinale() {
-            const audio = document.getElementById('romanticSong');
-            audio.volume = 1;
+        function showStep1() {
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <h1 style="font-size: 5rem;">💔</h1>
+                <h2 style="font-family: 'Pacifico'; margin: 20px 0;">Agrima, I Love You! ❤️</h2>
+                <p>Will you be mine forever?</p>
+                <button id="yes-btn" class="btn" onclick="sayYes()">YES!</button>
+                <button id="wait-btn" class="btn" onclick="sayWait()">Wait</button>
+            `;
+        }
 
-            // Confetti Explosion
-            var end = Date.now() + (15 * 1000);
-            var colors = ['#ff4d6d', '#ffafcc', '#ffffff'];
+        function sayWait() {
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <h1 style="font-size: 4rem;">🥺</h1>
+                <h2>Kab tak wait karwaoge?</h2>
+                <button class="btn" style="background:#eee; color:#333" onclick="finalWait('2 saal')">2 saal</button>
+                <button class="btn" style="background:#eee; color:#333" onclick="finalWait('9 saal')">9 saal</button>
+            `;
+        }
 
-            (function frame() {
-                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
-                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+        function finalWait(time) {
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <h1 style="font-size: 4rem;">😌</h1>
+                <h2>Okay, I'll wait for you for ${time}... <br>But my love remains yours.</h2>
+                <button class="btn" onclick="location.reload()" style="background:var(--p1); color:white; margin-top:20px;">❤️</button>
+            `;
+        }
 
-                if (Date.now() < end) { requestAnimationFrame(frame); }
-            }());
-
-            // Final Message
-            document.getElementById('main-stage').innerHTML = `
-                <div style="text-align:center; animation: bounceIn 1s;">
-                    <h1 style="font-size: 4rem; color: #ff4d6d; font-family: 'Pacifico';">Yayyy! ❤️</h1>
-                    <h2 style="font-size: 1.5rem; margin-top: 20px;">I Love You, Agrima!</h2>
-                    <p style="margin-top: 15px;">Aap meri duniya ho! 🌎✨</p>
-                    <div style="font-size: 80px; margin-top: 20px;">👩‍❤️‍👨🌷💍</div>
-                </div>
+        function sayYes() {
+            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <h1 style="font-size: 5rem;">💖🥰💖</h1>
+                <h2 style="font-family: 'Pacifico';">Best Day Ever!</h2>
+                <p>Kunal ❤️ Agrima Forever.</p>
             `;
         }
     </script>
