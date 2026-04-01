@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Cosmic Connection | Kunal & Agrima</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <title>The Cosmic ECG Connection | Kunal & Agrima</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -18,7 +16,7 @@
         }
 
         body {
-            /* Deep cosmic background */
+            /* Pure dark cosmic universe background */
             background-color: #000000;
             background-image: radial-gradient(circle at center, #0a0a1a 0%, #000000 100%);
             overflow: hidden;
@@ -48,175 +46,95 @@
             align-items: center;
         }
 
-        #nodeK-container { left: 15%; }
-        #nodeA-container { right: 15%; }
+        #nodeK-container { left: 10%; }
+        #nodeA-container { right: 10%; }
 
         .node {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Cinzel', serif;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
             position: relative;
+            background: #000;
         }
 
+        /* Kunal Node (Blue) */
         #nodeK {
             color: #00d4ff;
             border: 2px solid #00d4ff;
-            background: rgba(0, 212, 255, 0.1);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6), inset 0 0 10px rgba(0, 212, 255, 0.4);
         }
 
+        /* Agrima Node (Pink/Red) */
         #nodeA {
             color: #ff4d6d;
             border: 2px solid #ff4d6d;
-            background: rgba(255, 77, 109, 0.1);
-            box-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.6), inset 0 0 10px rgba(255, 77, 109, 0.4);
         }
 
         .tap-label {
             margin-top: 15px;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 2px;
             opacity: 0.7;
             animation: pulseText 1.5s infinite;
             transition: opacity 0.5s;
         }
 
-        @keyframes pulseText { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.9; } }
+        @keyframes pulseText { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
-        /* Node Heartbeat Animation */
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.3); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.3); }
-            60%, 100% { transform: scale(1); }
+        /* Node Heartbeat Animation (Scale) */
+        @keyframes nodeBeat {
+            0% { transform: scale(1); box-shadow: 0 0 20px currentColor; }
+            15% { transform: scale(1.3); box-shadow: 0 0 40px currentColor; }
+            30% { transform: scale(1); box-shadow: 0 0 20px currentColor; }
+            45% { transform: scale(1.2); box-shadow: 0 0 35px currentColor; }
+            60%, 100% { transform: scale(1); box-shadow: 0 0 20px currentColor; }
         }
-        .beat { animation: heartbeat 0.8s ease-in-out; }
+        .beat { animation: nodeBeat 0.8s ease-in-out; }
 
-        /* --- FINAL BIG HEART --- */
-        #final-heart-container {
-            position: absolute;
-            top: 65%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 2s;
-        }
-
-        #big-heart {
-            font-size: 80px;
-            cursor: pointer;
-            filter: drop-shadow(0 0 20px #ff4d6d);
-            animation: floatHeart 2s infinite ease-in-out;
-            margin-bottom: 10px;
-        }
-
-        @keyframes floatHeart {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.1); }
-        }
-
-        /* --- PROPOSAL MODAL UI --- */
-        #confession-modal {
+        .back-btn {
             position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
+            top: 20px;
+            left: 20px;
             z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 1s;
-        }
-
-        .modal-content {
-            text-align: center;
-            padding: 30px;
-            background: rgba(25, 10, 15, 0.8);
-            border: 1px solid rgba(255, 77, 109, 0.3);
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            box-shadow: 0 0 40px rgba(255, 77, 109, 0.2);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .emoji-large { font-size: 80px; margin-bottom: 20px; }
-        
-        .question-text {
-            font-family: 'Pacifico', cursive;
-            font-size: 28px;
-            color: #ff4d6d;
-            margin-bottom: 30px;
-            line-height: 1.4;
-        }
-
-        .btn-group { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-        
-        .btn {
-            padding: 12px 30px;
-            border-radius: 30px;
-            border: none;
+            text-decoration: none;
             font-family: 'Montserrat', sans-serif;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
+            font-size: 12px;
+            backdrop-filter: blur(5px);
         }
-
-        .btn-yes { background: #ff4d6d; color: white; box-shadow: 0 0 15px #ff4d6d; }
-        .btn-yes:active { transform: scale(0.95); }
-        
-        .btn-wait { background: #333; color: #ccc; border: 1px solid #555; }
-        .btn-wait:active { transform: scale(0.95); }
 
     </style>
 </head>
 <body>
 
-    <!-- Canvas for glowing strings -->
+    <a href="transition.html" class="back-btn">← Back</a>
+
     <canvas id="stringCanvas"></canvas>
 
-    <!-- Node K -->
     <div id="nodeK-container" class="node-container">
         <div id="nodeK" class="node">K</div>
         <div id="labelK" class="tap-label">TAP ME</div>
     </div>
 
-    <!-- Node A -->
     <div id="nodeA-container" class="node-container">
         <div id="nodeA" class="node">A</div>
         <div id="labelA" class="tap-label">TAP ME</div>
     </div>
 
-    <!-- The Big Heart (Hidden initially) -->
-    <div id="final-heart-container">
-        <div id="big-heart" onclick="triggerBreak()">❤️</div>
-        <div style="font-family: 'Cinzel'; letter-spacing: 2px;">TAP TO OPEN</div>
-    </div>
-
-    <!-- The Confession Modal -->
-    <div id="confession-modal">
-        <div class="modal-content" id="modal-dynamic-content">
-            <!-- JavaScript will inject content here -->
-        </div>
-    </div>
-
     <script>
-        // --- CANVAS SETUP ---
         const canvas = document.getElementById('stringCanvas');
         const ctx = canvas.getContext('2d');
         let cw, ch;
@@ -230,28 +148,36 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // --- STATE VARIABLES ---
+        // --- STATES ---
         let kActive = false;
         let aActive = false;
         let connected = false;
         let connectionProgress = 0; // 0 to 1
 
-        // Pulse variables
         let pulseActive = false;
         let pulseT = 0; // 0 (K) to 1 (A)
         let pulseDirection = 1; // 1 = K to A, -1 = A to K
-        let pulseCycles = 0; // Count how many times it traveled
 
-        // Node Positions for Math
-        let posK = { x: cw * 0.15 + 35, y: ch * 0.5 };
-        let posA = { x: cw * 0.85 - 35, y: ch * 0.5 };
+        // Node Positions
+        let posK = { x: cw * 0.10 + 30, y: ch * 0.5 };
+        let posA = { x: cw * 0.90 - 30, y: ch * 0.5 };
 
-        // Handle Clicks on Nodes
+        // --- MULTIPLE ENERGY STRINGS SETUP ---
+        // 1 Main ECG string + 4 Ambient glowing strings
+        const strings = [
+            { isECG: true, amp: 20, freq: 1.5, phase: 0, width: 4, alpha: 1 },
+            { isECG: false, amp: 50, freq: 2.1, phase: Math.PI/2, width: 2, alpha: 0.4 },
+            { isECG: false, amp: -60, freq: 1.8, phase: Math.PI, width: 2, alpha: 0.3 },
+            { isECG: false, amp: 30, freq: 2.5, phase: Math.PI*1.5, width: 1.5, alpha: 0.5 },
+            { isECG: false, amp: -40, freq: 3.0, phase: Math.PI/4, width: 1, alpha: 0.6 }
+        ];
+
+        // --- INTERACTION ---
         document.getElementById('nodeK').addEventListener('click', () => {
             if(kActive) return;
             kActive = true;
             document.getElementById('labelK').style.opacity = 0;
-            document.getElementById('nodeK').classList.add('beat');
+            triggerBeat('K');
             checkConnection();
         });
 
@@ -259,24 +185,24 @@
             if(aActive) return;
             aActive = true;
             document.getElementById('labelA').style.opacity = 0;
-            document.getElementById('nodeA').classList.add('beat');
+            triggerBeat('A');
             checkConnection();
         });
 
         function checkConnection() {
-            // Remove beat class after animation finishes so it can be applied again later
-            setTimeout(() => {
-                document.getElementById('nodeK').classList.remove('beat');
-                document.getElementById('nodeA').classList.remove('beat');
-            }, 800);
-
             if (kActive && aActive && !connected) {
-                // Thoda delay dekar connection start karenge
-                setTimeout(() => { connected = true; }, 500);
+                setTimeout(() => { connected = true; }, 400); // Thoda ruk kar connect hoga
             }
         }
 
-        // --- MATH: BEZIER CURVE CALCULATOR FOR PULSE ---
+        function triggerBeat(nodeId) {
+            let el = document.getElementById('node' + nodeId);
+            el.classList.remove('beat');
+            void el.offsetWidth; // Force reflow
+            el.classList.add('beat');
+        }
+
+        // --- MATH: BEZIER POINT ---
         function getBezierPoint(t, p0, p1, p2, p3) {
             let cX = 3 * (p1.x - p0.x), bX = 3 * (p2.x - p1.x) - cX, aX = p3.x - p0.x - cX - bX;
             let x = (aX * Math.pow(t, 3)) + (bX * Math.pow(t, 2)) + (cX * t) + p0.x;
@@ -285,219 +211,171 @@
             return { x, y };
         }
 
-        // --- MAIN DRAW LOOP ---
+        // --- MATH: REAL ECG WAVEFORM (_/\_) ---
+        function getEcgOffset(dt) {
+            // dt is the distance from the pulse center. Range approx -0.1 to 0.1
+            let x = dt * 100; // Stretch it to make mathematical peaks easier
+            
+            // x > 0 is the FRONT of the wave (moving forward)
+            // x < 0 is the TAIL of the wave
+            
+            if (x < -5 || x > 5) return 0; // Baseline
+
+            // T-wave (Small bump at the back)
+            if (x >= -4.5 && x < -2.5) return -12 * Math.sin((x + 4.5) * Math.PI / 2);
+            
+            // S-wave (Dip down after spike)
+            if (x >= -2 && x < -1) return 25 * (x + 2); // Goes down to Y=25
+            
+            // R-wave (The HUGE upward spike)
+            if (x >= -1 && x < 0) return 25 - 115 * (x + 1); // Shoots UP to Y=-90
+            
+            // Q-wave (Dip before spike)
+            if (x >= 0 && x < 1) return -90 + 105 * x; // Shoots DOWN to Y=15
+            if (x >= 1 && x < 1.5) return 15 - 30 * (x - 1); // Back to baseline Y=0
+            
+            // P-wave (Small bump at the front)
+            if (x >= 2.5 && x < 4.5) return -8 * Math.sin((x - 2.5) * Math.PI / 2);
+
+            return 0;
+        }
+
+        // --- MAIN ANIMATION LOOP ---
         function draw() {
-            // Fade out purane frames for neon glowing trails
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            // Dark trail effect for glowing neon strings
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             ctx.fillRect(0, 0, cw, ch);
 
-            // Update dynamic positions (in case of window resize)
-            posK = { x: cw * 0.15 + 35, y: ch * 0.5 };
-            posA = { x: cw * 0.85 - 35, y: ch * 0.5 };
+            posK = { x: cw * 0.10 + 30, y: ch * 0.5 };
+            posA = { x: cw * 0.90 - 30, y: ch * 0.5 };
 
-            // Control points for the string (leharate huye banayenge)
             let time = Date.now() * 0.002;
-            let cp1 = { x: posK.x + (cw * 0.2), y: posK.y + Math.sin(time) * 150 };
-            let cp2 = { x: posA.x - (cw * 0.2), y: posA.y + Math.cos(time * 0.8) * 150 };
+            
+            // Floating control points for the main bezier curve
+            let cp1 = { x: posK.x + (cw * 0.3), y: posK.y + Math.sin(time) * 100 };
+            let cp2 = { x: posA.x - (cw * 0.3), y: posA.y + Math.cos(time * 0.8) * 100 };
 
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-
-            // 1. Agar sirf K active hai
-            if (kActive && !connected) {
+            // Draw all strings
+            strings.forEach((str, index) => {
                 ctx.beginPath();
-                ctx.moveTo(posK.x, posK.y);
-                // Randomly hawa me ghoomega string
-                let floatX = posK.x + (cw*0.2) + Math.sin(time*2)*50;
-                let floatY = posK.y + Math.cos(time*1.5)*100;
-                ctx.quadraticCurveTo(posK.x + 50, posK.y + 100, floatX, floatY);
-                ctx.strokeStyle = '#00d4ff';
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#00d4ff';
-                ctx.stroke();
-            }
+                ctx.lineCap = 'round';
+                ctx.lineWidth = str.width;
 
-            // 2. Agar sirf A active hai
-            if (aActive && !connected) {
-                ctx.beginPath();
-                ctx.moveTo(posA.x, posA.y);
-                let floatX = posA.x - (cw*0.2) + Math.cos(time*2)*50;
-                let floatY = posA.y + Math.sin(time*1.5)*100;
-                ctx.quadraticCurveTo(posA.x - 50, posA.y - 100, floatX, floatY);
-                ctx.strokeStyle = '#ff4d6d';
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#ff4d6d';
-                ctx.stroke();
-            }
-
-            // 3. THE CONNECTION (Dono mil gaye)
-            if (connected) {
-                // Dheere-dheere line draw hogi
-                if (connectionProgress < 1) {
-                    connectionProgress += 0.01;
-                } else if (!pulseActive) {
-                    pulseActive = true; // Line jud gayi, ab pulse start
-                }
-
-                // Draw the connected Bezier Curve
-                ctx.beginPath();
-                ctx.moveTo(posK.x, posK.y);
-                
-                // Gradient for the string (Blue to Pink)
+                // Gradient for strings (Blue to Pink)
                 let grad = ctx.createLinearGradient(posK.x, posK.y, posA.x, posA.y);
-                grad.addColorStop(0, '#00d4ff');
-                grad.addColorStop(1, '#ff4d6d');
-                ctx.strokeStyle = grad;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff4d6d'; // General glow
-
-                // Draw partial curve based on connectionProgress
-                for (let t = 0; t <= connectionProgress; t += 0.02) {
-                    let pt = getBezierPoint(t, posK, cp1, cp2, posA);
-                    ctx.lineTo(pt.x, pt.y);
+                grad.addColorStop(0, `rgba(0, 212, 255, ${str.alpha})`);
+                grad.addColorStop(1, `rgba(255, 77, 109, ${str.alpha})`);
+                
+                // Active Pulse string is super bright
+                if (str.isECG) {
+                    grad = ctx.createLinearGradient(posK.x, posK.y, posA.x, posA.y);
+                    grad.addColorStop(0, '#00d4ff');
+                    grad.addColorStop(1, '#ff4d6d');
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = pulseDirection === 1 ? '#00d4ff' : '#ff4d6d';
+                } else {
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = '#ffffff';
                 }
-                ctx.stroke();
 
-                // 4. HEARTBEAT PULSE (Wave traveling on string)
-                if (pulseActive) {
-                    pulseT += 0.015 * pulseDirection; // Pulse ki speed
-                    
-                    // Boundary hit logic
-                    if (pulseT >= 1) {
-                        pulseT = 1;
-                        pulseDirection = -1; // Wapas bhejo K ki taraf
-                        pulseCycles++;
-                        triggerBeat('A'); // A ko dhadkao
-                        checkEnding(); // End sequence check
-                    } else if (pulseT <= 0) {
-                        pulseT = 0;
-                        pulseDirection = 1; // Wapas bhejo A ki taraf
-                        pulseCycles++;
-                        triggerBeat('K'); // K ko dhadkao
+                ctx.strokeStyle = grad;
+
+                // 1. Unconnected state (Floating strings)
+                if (!connected) {
+                    if (kActive) {
+                        ctx.moveTo(posK.x, posK.y);
+                        let floatX = posK.x + (cw * 0.3) + Math.sin(time * str.freq + str.phase) * 100;
+                        let floatY = posK.y + Math.cos(time * str.freq) * str.amp * 2;
+                        ctx.quadraticCurveTo(posK.x + 50, posK.y + str.amp, floatX, floatY);
+                        ctx.stroke();
                     }
+                    if (aActive) {
+                        ctx.beginPath();
+                        ctx.moveTo(posA.x, posA.y);
+                        let floatX = posA.x - (cw * 0.3) + Math.cos(time * str.freq + str.phase) * 100;
+                        let floatY = posA.y + Math.sin(time * str.freq) * str.amp * 2;
+                        ctx.quadraticCurveTo(posA.x - 50, posA.y - str.amp, floatX, floatY);
+                        ctx.stroke();
+                    }
+                } 
+                // 2. Connected state (Joined strings + ECG)
+                else {
+                    if (connectionProgress < 1) connectionProgress += 0.005; // Lines joining speed
+                    else if (!pulseActive && str.isECG) pulseActive = true;
 
-                    // Pulse ko draw karna (Ek chamakti hui energy ball)
-                    let pulsePos = getBezierPoint(pulseT, posK, cp1, cp2, posA);
-                    
-                    ctx.beginPath();
-                    ctx.arc(pulsePos.x, pulsePos.y, 8, 0, Math.PI * 2);
-                    
-                    // Pulse ka color change hoga position ke hisaab se
-                    let pColor = pulseT < 0.5 ? '#00d4ff' : '#ff4d6d';
-                    ctx.fillStyle = '#ffffff'; // Safed center
-                    ctx.shadowBlur = 30;
-                    ctx.shadowColor = pColor;
-                    ctx.fill();
-                    
-                    // Outer aura of pulse
-                    ctx.beginPath();
-                    ctx.arc(pulsePos.x, pulsePos.y, 15, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${pulseT < 0.5 ? '0,212,255' : '255,77,109'}, 0.5)`;
-                    ctx.fill();
+                    let step = str.isECG ? 0.002 : 0.02; // High resolution for ECG, low for ambient
+                    ctx.moveTo(posK.x, posK.y);
+
+                    for (let t = 0; t <= connectionProgress; t += step) {
+                        let pt = getBezierPoint(t, posK, cp1, cp2, posA);
+                        
+                        let yOffset = 0;
+
+                        // Ambient string waves
+                        if (!str.isECG) {
+                            yOffset = Math.sin(t * Math.PI * str.freq + time + str.phase) * str.amp;
+                        } 
+                        // The Real ECG Wave logic
+                        else if (pulseActive) {
+                            // Calculate distance from pulse center
+                            let dt = pulseDirection === 1 ? (t - pulseT) : (pulseT - t);
+                            yOffset = getEcgOffset(dt);
+                        }
+
+                        ctx.lineTo(pt.x, pt.y + yOffset);
+                    }
+                    ctx.stroke();
+                }
+            });
+
+            // 3. Update ECG Pulse Position
+            if (pulseActive && connected) {
+                pulseT += 0.008 * pulseDirection; // Pulse traveling speed
+
+                // When pulse reaches Agrima
+                if (pulseT >= 1) {
+                    pulseT = 1;
+                    pulseDirection = -1; // Reflect back
+                    triggerBeat('A');
+                } 
+                // When pulse reaches Kunal
+                else if (pulseT <= 0) {
+                    pulseT = 0;
+                    pulseDirection = 1; // Reflect forward
+                    triggerBeat('K');
                 }
             }
 
             requestAnimationFrame(draw);
         }
 
-        // Start Canvas Loop
-        draw();
-
-        // --- LOGIC FUNCTIONS ---
-        
-        function triggerBeat(nodeId) {
-            let el = document.getElementById('node' + nodeId);
-            el.classList.remove('beat');
-            void el.offsetWidth; // Trigger reflow to restart animation
-            el.classList.add('beat');
+        // Add some random static background stars
+        const bgStars = [];
+        for(let i=0; i<100; i++) {
+            bgStars.push({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                s: Math.random() * 1.5
+            });
+        }
+        function drawBgStars() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            bgStars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.s, 0, Math.PI*2);
+                ctx.fill();
+            });
         }
 
-        function checkEnding() {
-            // 4 baar pulse aane-jane ke baad bada heart dikhayenge
-            if (pulseCycles === 4) {
-                document.getElementById('final-heart-container').style.opacity = '1';
-                document.getElementById('final-heart-container').style.pointerEvents = 'auto';
-            }
-        }
-
-        // --- FINAL PROPOSAL UI LOGIC ---
-
-        function triggerBreak() {
-            const content = document.getElementById('modal-dynamic-content');
-            const modal = document.getElementById('confession-modal');
-            
-            // 1. Heartbreak animation show karo
-            content.innerHTML = `
-                <div class="emoji-large" style="animation: heartbeat 0.5s;">💔</div>
-                <h2 style="color: white; font-family:'Cinzel';">Oops...</h2>
-            `;
-            modal.style.opacity = '1';
-            modal.style.pointerEvents = 'auto';
-
-            // 2. Kuch second baad asli message dikhao
-            setTimeout(() => {
-                showMainQuestion();
-            }, 1500);
-        }
-
-        function showMainQuestion() {
-            const content = document.getElementById('modal-dynamic-content');
-            content.innerHTML = `
-                <div class="emoji-large">🥺</div>
-                <div class="question-text">
-                    Mera dil toh pehle hi tum chura chuki ho.<br>
-                    Kya tum hamesha ke liye meri banogi?
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-yes" onclick="sayYes()">YES! ❤️</button>
-                    <button class="btn btn-wait" onclick="sayWait()">Wait...</button>
-                </div>
-            `;
-        }
-
-        function sayWait() {
-            const content = document.getElementById('modal-dynamic-content');
-            content.innerHTML = `
-                <div class="emoji-large">😢</div>
-                <div class="question-text" style="color: #ccc; font-size: 22px;">
-                    Kab tak wait karwaoge mujhe?
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-wait" onclick="finalWaitReply('2 saal')">2 Saal</button>
-                    <button class="btn btn-wait" onclick="finalWaitReply('9 saal')">9 Saal</button>
-                </div>
-            `;
-        }
-
-        function finalWaitReply(time) {
-            const content = document.getElementById('modal-dynamic-content');
-            content.innerHTML = `
-                <div class="emoji-large">😌</div>
-                <div class="question-text" style="color: #fff; font-size: 24px;">
-                    Okay, I'll wait for you for ${time}...<br>
-                    Kyunki tumhare siva koi aur nahi chahiye. ❤️
-                </div>
-            `;
-        }
-
-        function sayYes() {
-            // Massive Confetti Celebration
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ffffff', '#00d4ff'] });
-            
-            const content = document.getElementById('modal-dynamic-content');
-            content.innerHTML = `
-                <div class="emoji-large">🥰💍✨</div>
-                <div class="question-text" style="font-size: 36px; text-shadow: 0 0 20px #ff4d6d;">
-                    BEST. DAY. EVER!
-                </div>
-                <div style="font-family:'Montserrat'; color: white; font-size: 16px;">
-                    Kunal ❤️ Agrima<br>Together Forever.
-                </div>
-            `;
+        // Inject background stars into the loop
+        const originalDraw = draw;
+        draw = function() {
+            originalDraw();
+            drawBgStars();
         }
 
     </script>
 </body>
 </html>
 
-  
+
