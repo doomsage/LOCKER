@@ -155,7 +155,7 @@
 
             // Flashlight Effect: Create radial gradient at touch point
             // Only text inside this glowing radius will be visible
-            let revealRadius = 180; // Kitna bada hissa dikhega
+            let revealRadius = 60; // Kitna bada hissa dikhega
             let gradient = ctx.createRadialGradient(touch.x, touch.y, 10, touch.x, touch.y, revealRadius);
             gradient.addColorStop(0, 'rgba(255, 255, 255, 1)'); // Center full bright
             gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.6)'); // Fading
