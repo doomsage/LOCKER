@@ -1,300 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Doomsage - Private Locker</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  body {
-    margin: 0;
-    font-family: 'Orbitron', sans-serif;
-    overflow-x: hidden;
-    background: #01010a;
-    color: #00fff0;
-    text-align: center;
-    position: relative;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Forever | ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --love-red: #ff4d6d;
+            --rose-pink: #ff85a1;
+            --soft-white: #fff0f3;
+            --dark-love: #800f2f;
+        }
 
-  h1 {
-    margin-top: 30px;
-    font-size: 3em;
-    text-shadow: 0 0 10px #00fff0, 0 0 20px #00fff0, 0 0 30px #00fff0;
-    letter-spacing: 2px;
-  }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* Tabs */
-  .tabs {
-    margin-top: 40px;
-    display: flex;
-    justify-content: center;
-  }
+        body {
+            background-color: var(--soft-white);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
 
-  .tab-btn {
-    padding: 12px 25px;
-    margin: 0 10px;
-    background: #111;
-    color: #0ff;
-    border: 2px solid #0ff;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: bold;
-    transition: all 0.3s ease;
-  }
+        /* --- PRELOADER --- */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, #fff, #ffccd5);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: 1s ease-in-out;
+        }
 
-  .tab-btn.active {
-    background: #0ff;
-    color: #111;
-    box-shadow: 0 0 25px #0ff;
-  }
+        .heart-loader {
+            font-size: 50px;
+            animation: beat 1s infinite alternate;
+            cursor: pointer;
+        }
 
-  .tab-btn:hover {
-    background: #0ff;
-    color: #111;
-    box-shadow: 0 0 15px #0ff;
-  }
+        @keyframes beat { to { transform: scale(1.3); } }
 
-  /* Tab content */
-  #content {
-    margin-top: 30px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+        /* --- BACKGROUND FLOWERS --- */
+        #petal-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 5;
+        }
 
-  input {
-    padding: 12px 20px;
-    margin: 10px;
-    background: #0a0a14;
-    border: 2px solid #00fff0;
-    border-radius: 10px;
-    color: #0ff;
-    text-align: center;
-    font-size: 1.2em;
-  }
+        /* --- SECTION STYLING --- */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            position: relative;
+            text-align: center;
+        }
 
-  input::placeholder { color: #0ff; }
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(255, 240, 243, 0.8), rgba(255, 240, 243, 0.8)), 
+                        url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-attachment: fixed;
+        }
 
-  button.upload-btn {
-    padding: 12px 25px;
-    margin: 10px;
-    background: linear-gradient(45deg,#00fff0,#0ff0ff);
-    border: none;
-    border-radius: 12px;
-    font-weight: bold;
-    color: #01010a;
-    font-size: 1.1em;
-    cursor: pointer;
-    box-shadow: 0 0 15px #0ff;
-    transition: all 0.3s ease;
-  }
+        .hero h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(4rem, 10vw, 8rem);
+            color: var(--love-red);
+            text-shadow: 2px 2px 10px rgba(255, 77, 109, 0.3);
+            margin-bottom: 20px;
+        }
 
-  button.upload-btn:hover {
-    box-shadow: 0 0 25px #0ff, 0 0 40px #0ff;
-    transform: scale(1.05);
-  }
+        /* --- GLASS CARDS --- */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.1);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: 1s all ease;
+        }
 
-  .file-preview {
-    position: relative;
-    margin: 15px;
-    border: 2px solid #0ff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 15px #0ff;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
+        .visible { opacity: 1; transform: translateY(0); }
 
-  .file-preview img {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
+        /* --- JOURNEY TIMELINE --- */
+        .timeline { margin-top: 50px; }
+        .moment {
+            margin: 20px;
+            padding: 20px;
+            border-left: 4px solid var(--love-red);
+            text-align: left;
+            background: white;
+            border-radius: 0 20px 20px 0;
+        }
 
-  .file-preview:hover img {
-    transform: scale(1.2);
-    box-shadow: 0 0 30px #0ff;
-  }
+        /* --- PROPOSAL BUTTONS --- */
+        .btn-container {
+            margin-top: 40px;
+            height: 100px;
+            position: relative;
+            width: 100%;
+        }
 
-  .download-btn {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background: rgba(0,0,0,0.6);
-    color: #0ff;
-    border: none;
-    padding: 5px 8px;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: all 0.3s;
-  }
+        .btn {
+            padding: 18px 45px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
 
-  .download-btn:hover {
-    background: #0ff;
-    color: #01010a;
-    box-shadow: 0 0 15px #0ff;
-  }
+        #yesBtn {
+            background: linear-gradient(45deg, var(--love-red), var(--rose-pink));
+            color: white;
+            box-shadow: 0 10px 25px rgba(255, 77, 109, 0.4);
+        }
 
-  /* Lightbox */
-  #lightbox {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95);
-    justify-content: center;
-    align-items: center;
-  }
+        #noBtn {
+            background: #fff;
+            color: #888;
+            position: absolute;
+        }
 
-  #lightbox img {
-    max-width: 90%;
-    max-height: 90%;
-    border: 3px solid #0ff;
-    border-radius: 15px;
-    box-shadow: 0 0 30px #0ff;
-  }
+        /* --- FLOATING PETAL ANIMATION --- */
+        .petal {
+            position: absolute;
+            background: #ffb3c1;
+            border-radius: 150% 0 150% 0;
+            animation: fall linear infinite;
+        }
 
-  /* Particles */
-  .particle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: #0ff;
-    border-radius: 50%;
-    opacity: 0.6;
-    animation: float 5s linear infinite;
-  }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
 
-  @keyframes float {
-    0% { transform: translateY(0) translateX(0); }
-    50% { transform: translateY(-100px) translateX(50px); }
-    100% { transform: translateY(0) translateX(0); }
-  }
-
-</style>
+    </style>
 </head>
 <body>
 
-<h1>DOOMSAGE - PRIVATE LOCKER</h1>
+    <div id="petal-container"></div>
 
-<div id="login">
-  <input type="password" id="pass" placeholder="Enter Password">
-  <button onclick="login()">Unlock</button>
-  <p id="login-msg" style="color:red;"></p>
-</div>
+    <div id="preloader" onclick="startApp()">
+        <div class="heart-loader">❤️</div>
+        <p style="margin-top: 20px; letter-spacing: 2px;">CLICK THE HEART TO START</p>
+    </div>
 
-<div id="dashboard" style="display:none;">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('upload')">Upload</button>
-    <button class="tab-btn" onclick="showTab('view')">View</button>
-  </div>
-  <div id="content">
-    <!-- Upload tab default -->
-    <h3>Upload File</h3>
-    <input type="file" id="fileInput">
-    <button class="upload-btn" onclick="uploadFile()">Upload</button>
-  </div>
-</div>
+    <section class="hero">
+        <h1>For My Queen</h1>
+        <p style="font-size: 1.2rem; font-weight: 300;">Har pal jo tumhare saath bitaya hai, woh mere liye ek tohfa hai.</p>
+        <div style="margin-top: 50px;">↓ Scroll Down Slowly</div>
+    </section>
 
-<!-- Lightbox -->
-<div id="lightbox" onclick="closeLightbox()">
-  <img id="lightboxImg" src="">
-</div>
+    <section>
+        <div class="glass-box" id="msg-box">
+            <h2 style="font-family: 'Dancing Script'; font-size: 3rem; color: var(--love-red);">Kyun Tum...?</h2>
+            <div class="timeline">
+                <div class="moment"><h3>✨ Pehli Mulakaat</h3><p>Woh din jab maine tumhe pehli baar dekha tha, sab kuch badal gaya.</p></div>
+                <div class="moment"><h3>🌟 Tumhari Baatein</h3><p>Tumhari har chhoti baat mere chehre par muskaan le aati hai.</p></div>
+                <div class="moment"><h3>💖 My Safe Place</h3><p>Jab duniya mushkil lagti hai, tum mere sukoon ka rasta ban jaati ho.</p></div>
+            </div>
+        </div>
+    </section>
 
-<script>
-const PASSWORD = "kunal321";
+    <section>
+        <div class="glass-box" id="proposal-box">
+            <h1 style="font-size: 3.5rem;">Will You Be Mine?</h1>
+            <p style="margin: 20px 0;">Hamesha ke liye?</p>
+            
+            <div class="btn-container">
+                <button id="yesBtn" class="btn" onclick="celebrate()">YES! ❤️</button>
+                <button id="noBtn" class="btn" onmouseover="dodge()">No</button>
+            </div>
+        </div>
+    </section>
 
-// Particles
-for(let i=0;i<50;i++){
-  const p = document.createElement('div');
-  p.className = 'particle';
-  p.style.top = Math.random()*100+'%';
-  p.style.left = Math.random()*100+'%';
-  p.style.animationDuration = (3 + Math.random()*5)+'s';
-  document.body.appendChild(p);
-}
+    <audio id="loveAudio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
 
-function login() {
-  const pass = document.getElementById("pass").value;
-  if(pass === PASSWORD){
-    document.getElementById("login").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    showTab('upload');
-  } else {
-    document.getElementById("login-msg").innerText = "Wrong password!";
-  }
-}
+    <script>
+        // Start Website
+        function startApp() {
+            document.getElementById('preloader').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('preloader').style.display = 'none';
+                document.getElementById('loveAudio').play();
+            }, 1000);
+            createPetals();
+        }
 
-// Tab switching
-function showTab(tab){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(tab==='upload'){
-    document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
-    document.getElementById('content').innerHTML = `
-      <h3>Upload File</h3>
-      <input type="file" id="fileInput">
-      <button class="upload-btn" onclick="uploadFile()">Upload</button>
-    `;
-  } else if(tab==='view'){
-    document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
-    document.getElementById('content').innerHTML = "<h3>View Files</h3><div id='filePreviewContainer'></div>";
-    fetchFiles();
-  }
-}
+        // Create Falling Petals
+        function createPetals() {
+            const container = document.getElementById('petal-container');
+            setInterval(() => {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                const size = Math.random() * 15 + 10 + 'px';
+                petal.style.width = size;
+                petal.style.height = size;
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(petal);
+                setTimeout(() => petal.remove(), 5000);
+            }, 300);
+        }
 
-async function uploadFile() {
-  const file = document.getElementById("fileInput").files[0];
-  if(!file) return alert("Select a file first");
+        // Scroll Animation Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.2 });
 
-  const formData = new FormData();
-  formData.append("file", file);
+        document.querySelectorAll('.glass-box').forEach(box => observer.observe(box));
 
-  const res = await fetch(`/upload?password=${PASSWORD}`, {
-    method: "POST",
-    body: formData
-  });
+        // Dodge Button
+        function dodge() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * (window.innerWidth - 150);
+            const y = Math.random() * (window.innerHeight - 100);
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+            btn.style.position = 'fixed';
+        }
 
-  const text = await res.text();
-  alert(text);
-}
+        // Success Celebration
+        function celebrate() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff4d6d', '#ff85a1', '#ffffff']
+            });
 
-async function fetchFiles() {
-  const res = await fetch(`/files?password=${PASSWORD}`);
-  const files = await res.json();
-
-  const container = document.getElementById('filePreviewContainer');
-  container.innerHTML = "";
-
-  files.forEach(f => {
-    const div = document.createElement('div');
-    div.className = "file-preview";
-
-    div.innerHTML = `
-      <img src="/download/${f}?password=${PASSWORD}" onclick="openLightbox(this.src)">
-      <a href="/download/${f}?password=${PASSWORD}" download>
-        <button class="download-btn">⬇</button>
-      </a>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// Lightbox
-function openLightbox(src){
-  const lb = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lightboxImg');
-  lb.style.display = "flex";
-  lbImg.src = src;
-}
-
-function closeLightbox(){
-  document.getElementById('lightbox').style.display = "none";
-}
-
-</script>
-
+            document.getElementById('proposal-box').innerHTML = `
+                <h1 style="color: var(--love-red); font-family: 'Dancing Script'; font-size: 5rem;">Yaaaay! ❤️</h1>
+                <p style="font-size: 1.5rem;">The start of Our Forever...</p>
+                <div style="margin-top: 30px; font-size: 50px;">💑🌹✨</div>
+            `;
+        }
+    </script>
 </body>
 </html>
