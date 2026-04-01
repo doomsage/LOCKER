@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Cosmic Connection | Kunal & Agrima</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            /* Deep cosmic background */
+            background-color: #000000;
+            background-image: radial-gradient(circle at center, #0a0a1a 0%, #000000 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        #stringCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- THE NODES (K & A) --- */
+        .node-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #nodeK-container { left: 15%; }
+        #nodeA-container { right: 15%; }
+
+        .node {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        #nodeK {
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        #nodeA {
+            color: #ff4d6d;
+            border: 2px solid #ff4d6d;
+            background: rgba(255, 77, 109, 0.1);
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+        }
+
+        .tap-label {
+            margin-top: 15px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            animation: pulseText 1.5s infinite;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes pulseText { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.9; } }
+        
+        /* Node Heartbeat Animation */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.3); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.3); }
+            60%, 100% { transform: scale(1); }
+        }
+        .beat { animation: heartbeat 0.8s ease-in-out; }
+
+        /* --- FINAL BIG HEART --- */
+        #final-heart-container {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s;
+        }
+
+        #big-heart {
+            font-size: 80px;
+            cursor: pointer;
+            filter: drop-shadow(0 0 20px #ff4d6d);
+            animation: floatHeart 2s infinite ease-in-out;
+            margin-bottom: 10px;
+        }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        /* --- PROPOSAL MODAL UI --- */
+        #confession-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s;
+        }
+
+        .modal-content {
+            text-align: center;
+            padding: 30px;
+            background: rgba(25, 10, 15, 0.8);
+            border: 1px solid rgba(255, 77, 109, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(255, 77, 109, 0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .emoji-large { font-size: 80px; margin-bottom: 20px; }
+        
+        .question-text {
+            font-family: 'Pacifico', cursive;
+            font-size: 28px;
+            color: #ff4d6d;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .btn-group { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-yes { background: #ff4d6d; color: white; box-shadow: 0 0 15px #ff4d6d; }
+        .btn-yes:active { transform: scale(0.95); }
+        
+        .btn-wait { background: #333; color: #ccc; border: 1px solid #555; }
+        .btn-wait:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for glowing strings -->
+    <canvas id="stringCanvas"></canvas>
+
+    <!-- Node K -->
+    <div id="nodeK-container" class="node-container">
+        <div id="nodeK" class="node">K</div>
+        <div id="labelK" class="tap-label">TAP ME</div>
+    </div>
+
+    <!-- Node A -->
+    <div id="nodeA-container" class="node-container">
+        <div id="nodeA" class="node">A</div>
+        <div id="labelA" class="tap-label">TAP ME</div>
+    </div>
+
+    <!-- The Big Heart (Hidden initially) -->
+    <div id="final-heart-container">
+        <div id="big-heart" onclick="triggerBreak()">❤️</div>
+        <div style="font-family: 'Cinzel'; letter-spacing: 2px;">TAP TO OPEN</div>
+    </div>
+
+    <!-- The Confession Modal -->
+    <div id="confession-modal">
+        <div class="modal-content" id="modal-dynamic-content">
+            <!-- JavaScript will inject content here -->
+        </div>
+    </div>
+
+    <script>
+        // --- CANVAS SETUP ---
+        const canvas = document.getElementById('stringCanvas');
+        const ctx = canvas.getContext('2d');
+        let cw, ch;
+        
+        function resize() {
+            cw = window.innerWidth;
+            ch = window.innerHeight;
+            canvas.width = cw;
+            canvas.height = ch;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- STATE VARIABLES ---
+        let kActive = false;
+        let aActive = false;
+        let connected = false;
+        let connectionProgress = 0; // 0 to 1
+
+        // Pulse variables
+        let pulseActive = false;
+        let pulseT = 0; // 0 (K) to 1 (A)
+        let pulseDirection = 1; // 1 = K to A, -1 = A to K
+        let pulseCycles = 0; // Count how many times it traveled
+
+        // Node Positions for Math
+        let posK = { x: cw * 0.15 + 35, y: ch * 0.5 };
+        let posA = { x: cw * 0.85 - 35, y: ch * 0.5 };
+
+        // Handle Clicks on Nodes
+        document.getElementById('nodeK').addEventListener('click', () => {
+            if(kActive) return;
+            kActive = true;
+            document.getElementById('labelK').style.opacity = 0;
+            document.getElementById('nodeK').classList.add('beat');
+            checkConnection();
+        });
+
+        document.getElementById('nodeA').addEventListener('click', () => {
+            if(aActive) return;
+            aActive = true;
+            document.getElementById('labelA').style.opacity = 0;
+            document.getElementById('nodeA').classList.add('beat');
+            checkConnection();
+        });
+
+        function checkConnection() {
+            // Remove beat class after animation finishes so it can be applied again later
+            setTimeout(() => {
+                document.getElementById('nodeK').classList.remove('beat');
+                document.getElementById('nodeA').classList.remove('beat');
+            }, 800);
+
+            if (kActive && aActive && !connected) {
+                // Thoda delay dekar connection start karenge
+                setTimeout(() => { connected = true; }, 500);
+            }
+        }
+
+        // --- MATH: BEZIER CURVE CALCULATOR FOR PULSE ---
+        function getBezierPoint(t, p0, p1, p2, p3) {
+            let cX = 3 * (p1.x - p0.x), bX = 3 * (p2.x - p1.x) - cX, aX = p3.x - p0.x - cX - bX;
+            let x = (aX * Math.pow(t, 3)) + (bX * Math.pow(t, 2)) + (cX * t) + p0.x;
+            let cY = 3 * (p1.y - p0.y), bY = 3 * (p2.y - p1.y) - cY, aY = p3.y - p0.y - cY - bY;
+            let y = (aY * Math.pow(t, 3)) + (bY * Math.pow(t, 2)) + (cY * t) + p0.y;
+            return { x, y };
+        }
+
+        // --- MAIN DRAW LOOP ---
+        function draw() {
+            // Fade out purane frames for neon glowing trails
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, cw, ch);
+
+            // Update dynamic positions (in case of window resize)
+            posK = { x: cw * 0.15 + 35, y: ch * 0.5 };
+            posA = { x: cw * 0.85 - 35, y: ch * 0.5 };
+
+            // Control points for the string (leharate huye banayenge)
+            let time = Date.now() * 0.002;
+            let cp1 = { x: posK.x + (cw * 0.2), y: posK.y + Math.sin(time) * 150 };
+            let cp2 = { x: posA.x - (cw * 0.2), y: posA.y + Math.cos(time * 0.8) * 150 };
+
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+
+            // 1. Agar sirf K active hai
+            if (kActive && !connected) {
+                ctx.beginPath();
+                ctx.moveTo(posK.x, posK.y);
+                // Randomly hawa me ghoomega string
+                let floatX = posK.x + (cw*0.2) + Math.sin(time*2)*50;
+                let floatY = posK.y + Math.cos(time*1.5)*100;
+                ctx.quadraticCurveTo(posK.x + 50, posK.y + 100, floatX, floatY);
+                ctx.strokeStyle = '#00d4ff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00d4ff';
+                ctx.stroke();
+            }
+
+            // 2. Agar sirf A active hai
+            if (aActive && !connected) {
+                ctx.beginPath();
+                ctx.moveTo(posA.x, posA.y);
+                let floatX = posA.x - (cw*0.2) + Math.cos(time*2)*50;
+                let floatY = posA.y + Math.sin(time*1.5)*100;
+                ctx.quadraticCurveTo(posA.x - 50, posA.y - 100, floatX, floatY);
+                ctx.strokeStyle = '#ff4d6d';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff4d6d';
+                ctx.stroke();
+            }
+
+            // 3. THE CONNECTION (Dono mil gaye)
+            if (connected) {
+                // Dheere-dheere line draw hogi
+                if (connectionProgress < 1) {
+                    connectionProgress += 0.01;
+                } else if (!pulseActive) {
+                    pulseActive = true; // Line jud gayi, ab pulse start
+                }
+
+                // Draw the connected Bezier Curve
+                ctx.beginPath();
+                ctx.moveTo(posK.x, posK.y);
+                
+                // Gradient for the string (Blue to Pink)
+                let grad = ctx.createLinearGradient(posK.x, posK.y, posA.x, posA.y);
+                grad.addColorStop(0, '#00d4ff');
+                grad.addColorStop(1, '#ff4d6d');
+                ctx.strokeStyle = grad;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff4d6d'; // General glow
+
+                // Draw partial curve based on connectionProgress
+                for (let t = 0; t <= connectionProgress; t += 0.02) {
+                    let pt = getBezierPoint(t, posK, cp1, cp2, posA);
+                    ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+
+                // 4. HEARTBEAT PULSE (Wave traveling on string)
+                if (pulseActive) {
+                    pulseT += 0.015 * pulseDirection; // Pulse ki speed
+                    
+                    // Boundary hit logic
+                    if (pulseT >= 1) {
+                        pulseT = 1;
+                        pulseDirection = -1; // Wapas bhejo K ki taraf
+                        pulseCycles++;
+                        triggerBeat('A'); // A ko dhadkao
+                        checkEnding(); // End sequence check
+                    } else if (pulseT <= 0) {
+                        pulseT = 0;
+                        pulseDirection = 1; // Wapas bhejo A ki taraf
+                        pulseCycles++;
+                        triggerBeat('K'); // K ko dhadkao
+                    }
+
+                    // Pulse ko draw karna (Ek chamakti hui energy ball)
+                    let pulsePos = getBezierPoint(pulseT, posK, cp1, cp2, posA);
+                    
+                    ctx.beginPath();
+                    ctx.arc(pulsePos.x, pulsePos.y, 8, 0, Math.PI * 2);
+                    
+                    // Pulse ka color change hoga position ke hisaab se
+                    let pColor = pulseT < 0.5 ? '#00d4ff' : '#ff4d6d';
+                    ctx.fillStyle = '#ffffff'; // Safed center
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = pColor;
+                    ctx.fill();
+                    
+                    // Outer aura of pulse
+                    ctx.beginPath();
+                    ctx.arc(pulsePos.x, pulsePos.y, 15, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${pulseT < 0.5 ? '0,212,255' : '255,77,109'}, 0.5)`;
+                    ctx.fill();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Start Canvas Loop
+        draw();
+
+        // --- LOGIC FUNCTIONS ---
+        
+        function triggerBeat(nodeId) {
+            let el = document.getElementById('node' + nodeId);
+            el.classList.remove('beat');
+            void el.offsetWidth; // Trigger reflow to restart animation
+            el.classList.add('beat');
+        }
+
+        function checkEnding() {
+            // 4 baar pulse aane-jane ke baad bada heart dikhayenge
+            if (pulseCycles === 4) {
+                document.getElementById('final-heart-container').style.opacity = '1';
+                document.getElementById('final-heart-container').style.pointerEvents = 'auto';
+            }
+        }
+
+        // --- FINAL PROPOSAL UI LOGIC ---
+
+        function triggerBreak() {
+            const content = document.getElementById('modal-dynamic-content');
+            const modal = document.getElementById('confession-modal');
+            
+            // 1. Heartbreak animation show karo
+            content.innerHTML = `
+                <div class="emoji-large" style="animation: heartbeat 0.5s;">💔</div>
+                <h2 style="color: white; font-family:'Cinzel';">Oops...</h2>
+            `;
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'auto';
+
+            // 2. Kuch second baad asli message dikhao
+            setTimeout(() => {
+                showMainQuestion();
+            }, 1500);
+        }
+
+        function showMainQuestion() {
+            const content = document.getElementById('modal-dynamic-content');
+            content.innerHTML = `
+                <div class="emoji-large">🥺</div>
+                <div class="question-text">
+                    Mera dil toh pehle hi tum chura chuki ho.<br>
+                    Kya tum hamesha ke liye meri banogi?
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-yes" onclick="sayYes()">YES! ❤️</button>
+                    <button class="btn btn-wait" onclick="sayWait()">Wait...</button>
+                </div>
+            `;
+        }
+
+        function sayWait() {
+            const content = document.getElementById('modal-dynamic-content');
+            content.innerHTML = `
+                <div class="emoji-large">😢</div>
+                <div class="question-text" style="color: #ccc; font-size: 22px;">
+                    Kab tak wait karwaoge mujhe?
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-wait" onclick="finalWaitReply('2 saal')">2 Saal</button>
+                    <button class="btn btn-wait" onclick="finalWaitReply('9 saal')">9 Saal</button>
+                </div>
+            `;
+        }
+
+        function finalWaitReply(time) {
+            const content = document.getElementById('modal-dynamic-content');
+            content.innerHTML = `
+                <div class="emoji-large">😌</div>
+                <div class="question-text" style="color: #fff; font-size: 24px;">
+                    Okay, I'll wait for you for ${time}...<br>
+                    Kyunki tumhare siva koi aur nahi chahiye. ❤️
+                </div>
+            `;
+        }
+
+        function sayYes() {
+            // Massive Confetti Celebration
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ffffff', '#00d4ff'] });
+            
+            const content = document.getElementById('modal-dynamic-content');
+            content.innerHTML = `
+                <div class="emoji-large">🥰💍✨</div>
+                <div class="question-text" style="font-size: 36px; text-shadow: 0 0 20px #ff4d6d;">
+                    BEST. DAY. EVER!
+                </div>
+                <div style="font-family:'Montserrat'; color: white; font-size: 16px;">
+                    Kunal ❤️ Agrima<br>Together Forever.
+                </div>
+            `;
+        }
+
+    </script>
+</body>
+</html>
+
+  
