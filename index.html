@@ -3,256 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Forever | ❤️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>For My Cute Agrima | ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            --love-red: #ff4d6d;
-            --rose-pink: #ff85a1;
-            --soft-white: #fff0f3;
-            --dark-love: #800f2f;
+            --cute-pink: #ffb3c1;
+            --soft-pink: #ffccd5;
+            --pastel-white: #fff0f3;
+            --heart-red: #ff4d6d;
+            --text-color: #590d22;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; color: var(--text-color); }
+        body { background-color: var(--pastel-white); overflow-x: hidden; scroll-behavior: smooth; }
 
-        body {
-            background-color: var(--soft-white);
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+        /* --- CUTE LOADER --- */
+        #loader {
+            position: fixed; inset: 0; background: var(--pastel-white); z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: 1s ease-out;
+        }
+        .loader-heart { font-size: 80px; animation: heartBeat 1.2s infinite; }
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
         }
 
-        /* --- PRELOADER --- */
-        #preloader {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle, #fff, #ffccd5);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: 1s ease-in-out;
-        }
+        /* --- FLOATING ELEMENTS BG --- */
+        #animations-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+        .float-item { position: absolute; font-size: 20px; opacity: 0; }
 
-        .heart-loader {
-            font-size: 50px;
-            animation: beat 1s infinite alternate;
-            cursor: pointer;
-        }
-
-        @keyframes beat { to { transform: scale(1.3); } }
-
-        /* --- BACKGROUND FLOWERS --- */
-        #petal-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 5;
-        }
-
-        /* --- SECTION STYLING --- */
-        section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 100px 20px;
-            position: relative;
-            text-align: center;
-        }
+        /* --- MAIN LAYOUT --- */
+        section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; position: relative; z-index: 10; }
 
         /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(255, 240, 243, 0.8), rgba(255, 240, 243, 0.8)), 
-                        url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=2000');
-            background-size: cover;
-            background-attachment: fixed;
+        .hero { background: linear-gradient(135deg, var(--soft-pink) 0%, #fff 100%); }
+        .hero-text { font-family: 'Pacifico', cursive; font-size: clamp(4rem, 12vw, 9rem); color: var(--heart-red); text-shadow: 4px 4px 0px rgba(255,179,193,0.5); }
+        .agri-name { display: inline-block; animation: bounceIn 1s; }
+
+        /* --- CUTE TRANSITION DIVIDER --- */
+        .divider { height: 100px; width: 100%; background: var(--cute-pink); clip-path: polygon(0 0, 100% 30%, 100% 70%, 0% 100%); margin: -50px 0; }
+
+        /* --- JOURNEY CARDS --- */
+        .cute-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            border-radius: 40px; padding: 40px; width: 85%; max-width: 900px;
+            box-shadow: 0 20px 60px rgba(255, 179, 193, 0.3);
+            border: 5px solid white; margin: 40px 0;
+            opacity: 0; transform: translateY(50px);
+        }
+        .moment-title { font-family: 'Pacifico', cursive; font-size: 2.5rem; color: var(--cute-pink); margin-bottom: 20px; }
+        .moment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .moment-item { background: white; border-radius: 20px; padding: 20px; border: 2px dashed var(--cute-pink); transition: 0.3s; }
+        .moment-item:hover { transform: scale(1.05) rotate(2deg); background: var(--soft-pink); }
+
+        /* --- PROPOSAL --- */
+        .proposal-box {
+            background: white; padding: 60px; border-radius: 50%;
+            width: 500px; height: 500px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            box-shadow: 0 0 100px rgba(255, 77, 109, 0.4);
+            border: 10px solid var(--cute-pink);
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 50px rgba(255, 77, 109, 0.3); }
+            50% { box-shadow: 0 0 120px rgba(255, 77, 109, 0.6); }
+            100% { box-shadow: 0 0 50px rgba(255, 77, 109, 0.3); }
         }
 
-        .hero h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: clamp(4rem, 10vw, 8rem);
-            color: var(--love-red);
-            text-shadow: 2px 2px 10px rgba(255, 77, 109, 0.3);
-            margin-bottom: 20px;
+        .btn-yes {
+            padding: 20px 60px; font-size: 2rem; border-radius: 50px;
+            border: none; cursor: pointer; color: white;
+            background: linear-gradient(45deg, var(--heart-red), #ff758f);
+            box-shadow: 0 15px 30px rgba(255, 77, 109, 0.4);
+            transition: 0.3s; font-family: 'Pacifico', cursive;
+            margin-top: 30px;
+            animation: heartShaker 1.5s infinite;
+        }
+        .btn-yes:hover { transform: scale(1.1) translateY(-5px); }
+        @keyframes heartShaker {
+            0% { transform: scale(1) rotate(0deg); }
+            5% { transform: scale(1.1) rotate(-5deg); }
+            10% { transform: scale(1.1) rotate(5deg); }
+            15% { transform: scale(1.1) rotate(-5deg); }
+            20% { transform: scale(1.1) rotate(5deg); }
+            25% { transform: scale(1) rotate(0deg); }
         }
 
-        /* --- GLASS CARDS --- */
-        .glass-box {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 30px;
-            padding: 50px;
-            max-width: 800px;
-            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.1);
-            transform: translateY(50px);
-            opacity: 0;
-            transition: 1s all ease;
-        }
-
-        .visible { opacity: 1; transform: translateY(0); }
-
-        /* --- JOURNEY TIMELINE --- */
-        .timeline { margin-top: 50px; }
-        .moment {
-            margin: 20px;
-            padding: 20px;
-            border-left: 4px solid var(--love-red);
-            text-align: left;
-            background: white;
-            border-radius: 0 20px 20px 0;
-        }
-
-        /* --- PROPOSAL BUTTONS --- */
-        .btn-container {
-            margin-top: 40px;
-            height: 100px;
-            position: relative;
-            width: 100%;
-        }
-
-        .btn {
-            padding: 18px 45px;
-            font-size: 1.5rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: 600;
-        }
-
-        #yesBtn {
-            background: linear-gradient(45deg, var(--love-red), var(--rose-pink));
-            color: white;
-            box-shadow: 0 10px 25px rgba(255, 77, 109, 0.4);
-        }
-
-        #noBtn {
-            background: #fff;
-            color: #888;
-            position: absolute;
-        }
-
-        /* --- FLOATING PETAL ANIMATION --- */
-        .petal {
-            position: absolute;
-            background: #ffb3c1;
-            border-radius: 150% 0 150% 0;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        /* Keyframes */
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
         }
 
     </style>
 </head>
 <body>
 
-    <div id="petal-container"></div>
+    <div id="animations-container"></div>
 
-    <div id="preloader" onclick="startApp()">
-        <div class="heart-loader">❤️</div>
-        <p style="margin-top: 20px; letter-spacing: 2px;">CLICK THE HEART TO START</p>
+    <div id="loader" onclick="startCuteApp()">
+        <div class="loader-heart">💖</div>
+        <p style="font-size: 1.5rem; color: var(--heart-red);">Tap to make my heart beat...</p>
     </div>
 
     <section class="hero">
-        <h1>For My Queen</h1>
-        <p style="font-size: 1.2rem; font-weight: 300;">Har pal jo tumhare saath bitaya hai, woh mere liye ek tohfa hai.</p>
-        <div style="margin-top: 50px;">↓ Scroll Down Slowly</div>
+        <h1 class="hero-text">Hello, <span class="agri-name">Agrima</span>!</h1>
+        <p style="font-size: 1.5rem; margin-top: 20px;">Aapke liye ek super cute surprise hai... ✨</p>
+        <div style="margin-top: 80px; font-size: 50px;">👇💖👇</div>
     </section>
 
+    <div class="divider"></div>
+
     <section>
-        <div class="glass-box" id="msg-box">
-            <h2 style="font-family: 'Dancing Script'; font-size: 3rem; color: var(--love-red);">Kyun Tum...?</h2>
-            <div class="timeline">
-                <div class="moment"><h3>✨ Pehli Mulakaat</h3><p>Woh din jab maine tumhe pehli baar dekha tha, sab kuch badal gaya.</p></div>
-                <div class="moment"><h3>🌟 Tumhari Baatein</h3><p>Tumhari har chhoti baat mere chehre par muskaan le aati hai.</p></div>
-                <div class="moment"><h3>💖 My Safe Place</h3><p>Jab duniya mushkil lagti hai, tum mere sukoon ka rasta ban jaati ho.</p></div>
+        <div class="cute-card" id="journey-card">
+            <h2 class="moment-title">Kyunki Aap Ho Sabse Best!</h2>
+            <div class="moment-grid">
+                <div class="moment-item">
+                    <div style="font-size: 40px; color: var(--cute-pink);">🥰</div>
+                    <h3>The Cutest Smile</h3>
+                    <p>Jab aap smile karte ho, toh poori duniya glow karne lagti hai.</p>
+                </div>
+                <div class="moment-item">
+                    <div style="font-size: 40px; color: var(--cute-pink);">🧸</div>
+                    <h3>Purest Soul</h3>
+                    <p>Aap jaisa pyaara aur kind insaan maine kabhi nahi dekha.</p>
+                </div>
+                <div class="moment-item">
+                    <div style="font-size: 40px; color: var(--cute-pink);">💫</div>
+                    <h3>My Inspiration</h3>
+                    <p>Aapki baatein mujhe hamesha better banne ke liye inspire karti hain.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section>
-        <div class="glass-box" id="proposal-box">
-            <h1 style="font-size: 3.5rem;">Will You Be Mine?</h1>
-            <p style="margin: 20px 0;">Hamesha ke liye?</p>
-            
-            <div class="btn-container">
-                <button id="yesBtn" class="btn" onclick="celebrate()">YES! ❤️</button>
-                <button id="noBtn" class="btn" onmouseover="dodge()">No</button>
-            </div>
+    <section style="background-color: var(--soft-pink);">
+        <div class="proposal-box">
+            <h1 style="font-family: 'Pacifico', cursive; font-size: 3.5rem; color: var(--heart-red);">Agrima...</h1>
+            <p style="font-size: 1.3rem; margin: 20px 0;">Kya aap meri life ko permanently cute banaoge?</p>
+            <p style="font-style: italic;">(Please say yes, or I'll be sad! 🥺)</p>
+            <button class="btn-yes" onclick="celebrateCute()">YES! ❤️</button>
         </div>
     </section>
 
-    <audio id="loveAudio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <audio id="cuteAudio" loop>
+        <source src="https://ia801600.us.archive.org/21/items/lovely-lofi-hip-hop-loop/lovely-lofi-hip-hop-loop.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        // Start Website
-        function startApp() {
-            document.getElementById('preloader').style.opacity = '0';
+        // Start App and Music
+        function startCuteApp() {
+            document.getElementById('loader').style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('preloader').style.display = 'none';
-                document.getElementById('loveAudio').play();
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('cuteAudio').play();
+                initAnimations();
             }, 1000);
-            createPetals();
         }
 
-        // Create Falling Petals
-        function createPetals() {
-            const container = document.getElementById('petal-container');
-            setInterval(() => {
-                const petal = document.createElement('div');
-                petal.className = 'petal';
-                const size = Math.random() * 15 + 10 + 'px';
-                petal.style.width = size;
-                petal.style.height = size;
-                petal.style.left = Math.random() * 100 + 'vw';
-                petal.style.animationDuration = Math.random() * 3 + 2 + 's';
-                container.appendChild(petal);
-                setTimeout(() => petal.remove(), 5000);
-            }, 300);
-        }
+        // Initialize GSAP & Floating Elements
+        function initAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
 
-        // Scroll Animation Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) entry.target.classList.add('visible');
+            // Create Floating Cute Items
+            const container = document.getElementById('animations-container');
+            const items = ['💖', '🧸', '⭐', '🌸', '✨', '🐾', '🍦'];
+            for (let i = 0; i < 50; i++) {
+                const item = document.createElement('div');
+                item.className = 'float-item';
+                item.innerHTML = items[Math.floor(Math.random() * items.length)];
+                container.appendChild(item);
+                animateItem(item);
+            }
+
+            function animateItem(item) {
+                gsap.set(item, { x: gsap.utils.random(0, window.innerWidth), y: gsap.utils.random(0, window.innerHeight), opacity: gsap.utils.random(0.3, 0.8) });
+                gsap.to(item, {
+                    y: "-=300",
+                    x: gsap.utils.random("-=100", "+=100"),
+                    opacity: 0,
+                    duration: gsap.utils.random(3, 6),
+                    delay: gsap.utils.random(0, 5),
+                    ease: "sine.inOut",
+                    onComplete: () => { gsap.set(item, { y: window.innerHeight + 50 }); animateItem(item); }
+                });
+            }
+
+            // Scroll Reveal for Cute Cards
+            gsap.to(".cute-card", {
+                scrollTrigger: { trigger: ".cute-card", start: "top 80%", toggleActions: "play none none none" },
+                opacity: 1, y: 0, duration: 1.5, ease: "back.out(1.7)"
             });
-        }, { threshold: 0.2 });
-
-        document.querySelectorAll('.glass-box').forEach(box => observer.observe(box));
-
-        // Dodge Button
-        function dodge() {
-            const btn = document.getElementById('noBtn');
-            const x = Math.random() * (window.innerWidth - 150);
-            const y = Math.random() * (window.innerHeight - 100);
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
-            btn.style.position = 'fixed';
+            gsap.from(".moment-item", {
+                scrollTrigger: { trigger: ".moment-grid", start: "top 85%" },
+                opacity: 0, y: 30, stagger: 0.3, duration: 1, ease: "power2.out"
+            });
         }
 
-        // Success Celebration
-        function celebrate() {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#ff4d6d', '#ff85a1', '#ffffff']
-            });
+        // Final Ultra Celebration
+        function celebrateCute() {
+            // Massive Confetti
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-            document.getElementById('proposal-box').innerHTML = `
-                <h1 style="color: var(--love-red); font-family: 'Dancing Script'; font-size: 5rem;">Yaaaay! ❤️</h1>
-                <p style="font-size: 1.5rem;">The start of Our Forever...</p>
-                <div style="margin-top: 30px; font-size: 50px;">💑🌹✨</div>
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // Change Page to Ultimate Cute
+            document.body.innerHTML = `
+                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #fff, var(--soft-pink)); text-align: center; font-family: 'Pacifico', cursive;">
+                    <h1 style="color: var(--heart-red); font-size: 6rem; animation: bounceIn 1.5s;">BEST. DECISION. EVER! ❤️</h1>
+                    <p style="font-size: 2.5rem; color: var(--text-color); margin-top: 30px;">Agrima + Me = Forever Cute Pair 💑🧸</p>
+                    <div style="font-size: 100px; margin-top: 50px;">🌸✨💖💍💐</div>
+                </div>
             `;
         }
     </script>
