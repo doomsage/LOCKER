@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Falling Heart | Agrima</title>
-    <!-- Premium font for the text -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400&display=swap" rel="stylesheet">
+    <title>The Cosmic Formation | Kunal & Agrima</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,15 +16,14 @@
         }
 
         body {
-            /* Cosmic dark background maintain kar rahe hain */
+            /* Real Deep Space Black */
             background-color: #000000;
-            background-image: radial-gradient(circle at center, #110008 0%, #000000 100%);
             overflow: hidden;
             width: 100vw;
             height: 100vh;
         }
 
-        #transitionCanvas {
+        #cosmicCanvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -33,50 +32,7 @@
             z-index: 1;
         }
 
-        /* Agle page par jane ka button jo blast ke baad aayega */
-        #next-stage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            text-align: center;
-            opacity: 0;
-            pointer-events: none; /* Jab tak dikhe na tab tak click na ho */
-            transition: opacity 2s ease-in-out;
-        }
-
-        #next-stage h2 {
-            font-family: 'Cinzel', serif;
-            color: #ff4d6d;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px rgba(255, 77, 109, 0.8);
-            letter-spacing: 2px;
-        }
-
-        .continue-btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: transparent;
-            color: #ffffff;
-            border: 1px solid #ff4d6d;
-            border-radius: 30px;
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(255, 77, 109, 0.3), inset 0 0 10px rgba(255, 77, 109, 0.3);
-            transition: 0.4s;
-        }
-
-        .continue-btn:active {
-            background: #ff4d6d;
-            box-shadow: 0 0 20px rgba(255, 77, 109, 0.8);
-            transform: scale(0.95);
-        }
-
-        /* Subtle back button */
+        /* Subtle Back Button */
         .back-btn {
             position: fixed;
             top: 20px;
@@ -92,172 +48,349 @@
             font-size: 12px;
             backdrop-filter: blur(5px);
         }
+        
+        /* Loading text while calculating particles */
+        #loading {
+            position: absolute;
+            top: 50%; width: 100%; text-align: center;
+            color: #fff; font-family: 'Montserrat', sans-serif;
+            font-size: 14px; opacity: 0.5; z-index: 0;
+        }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="back-btn">← Back</a>
-    <canvas id="transitionCanvas"></canvas>
-
-    <!-- Ye blast ke baad dikhega -->
-    <div id="next-stage">
-        <h2>Do dilon ka connection...</h2>
-        <a href="connection.html" class="continue-btn">Aage Badhein ✨</a>
-    </div>
+    <div id="loading">Gathering stars...</div>
+    <canvas id="cosmicCanvas"></canvas>
 
     <script>
-        const canvas = document.getElementById('transitionCanvas');
+        const canvas = document.getElementById('cosmicCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Screen resize logic
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Animation States
-        let state = 'falling'; // 'falling', 'shattering', 'done'
+        let cw, ch;
+        let fontSize;
+        let targetsAgrimaCenter = [];
+        let targetsAgrimaBottom = [];
+        let targetsKunalTop = [];
         
-        // --- 1. The Falling Heart Logic ---
-        let heart = {
-            x: canvas.width / 2,
-            y: -100, // Upar se aayega
-            size: 40,
-            vy: 2, // Girne ki speed
-            glow: 0,
-            angle: 0
-        };
-
-        // --- 2. Particles for the Shatter Explosion ---
+        // Particles arrays
         let particles = [];
-        const particleColors = ['#ff4d6d', '#ff758f', '#ffb3c1', '#ffffff'];
+        let particlesTop = []; // For the duplicated Kunal morph
+        
+        function initCanvas() {
+            cw = window.innerWidth;
+            ch = window.innerHeight;
+            canvas.width = cw;
+            canvas.height = ch;
+            fontSize = Math.min(cw / 5, 60); // Mobile responsive text size
+        }
 
-        function createExplosion(x, y) {
-            // 200 glowing particles create karenge explosion ke liye
+        // --- PARTICLE EXTRACTION FROM TEXT ---
+        // Ye function text ko pixels me badal kar target coordinates nikalta hai
+        function getTargets(text, yPos) {
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = cw;
+            tempCanvas.height = ch;
+            let tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+            
+            tCtx.fillStyle = 'white';
+            tCtx.font = `700 ${fontSize}px 'Montserrat', sans-serif`;
+            tCtx.textAlign = 'center';
+            tCtx.textBaseline = 'middle';
+            tCtx.fillText(text, cw / 2, yPos);
+
+            let imgData = tCtx.getImageData(0, 0, cw, ch).data;
+            let targets = [];
+            
+            // Loop through pixels, step by 4 to reduce particle count for performance
+            let step = cw > 600 ? 5 : 3; 
+            for (let y = 0; y < ch; y += step) {
+                for (let x = 0; x < cw; x += step) {
+                    let alpha = imgData[(y * cw + x) * 4 + 3];
+                    if (alpha > 128) {
+                        targets.push({ x: x, y: y });
+                    }
+                }
+            }
+            return targets;
+        }
+
+        // --- REAL COSMIC BACKGROUND ---
+        let stars = [];
+        function initStars() {
             for (let i = 0; i < 200; i++) {
-                let angle = Math.random() * Math.PI * 2;
-                let speed = Math.random() * 8 + 2; // Blast ki speed
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    size: Math.random() * 4 + 1,
-                    color: particleColors[Math.floor(Math.random() * particleColors.length)],
-                    life: 1.0, // Fade hone ke liye
-                    decay: Math.random() * 0.015 + 0.005 // Kitni jaldi gayab hoga
+                stars.push({
+                    x: Math.random() * cw,
+                    y: Math.random() * ch,
+                    size: Math.random() * 1.5,
+                    alpha: Math.random() * 0.8 + 0.2
                 });
             }
         }
+        function drawStars() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, cw, ch);
+            stars.forEach(s => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
 
-        // Custom path se heart draw karna (Premium look ke liye)
-        function drawHeart(x, y, size, glowIntensity) {
+        // --- THE PARTICLE CLASS ---
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 15; // Blast velocity
+                this.vy = (Math.random() - 0.5) * 15;
+                this.target = null;
+                this.color = color;
+                this.friction = 0.95;
+            }
+
+            update(phase) {
+                if (phase === 'explode') {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vx *= this.friction;
+                    this.vy *= this.friction;
+                } 
+                else if (phase === 'swirl') {
+                    // Bhawandar (Vortex) Logic
+                    let dx = (cw/2) - this.x;
+                    let dy = (ch/2) - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    let nx = dx / dist;
+                    let ny = dy / dist;
+                    
+                    // Tangential force for swirling
+                    this.vx += (-ny * 2) + (nx * 0.5); 
+                    this.vy += (nx * 2) + (ny * 0.5);
+                    this.vx *= 0.92;
+                    this.vy *= 0.92;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+                else if (phase === 'form' || phase === 'morph') {
+                    if (this.target) {
+                        // Spring physics to seek target
+                        let tx = this.target.x - this.x;
+                        let ty = this.target.y - this.y;
+                        this.vx += tx * 0.05;
+                        this.vy += ty * 0.05;
+                        this.vx *= 0.8; // Dampening
+                        this.vy *= 0.8;
+                        this.x += this.vx;
+                        this.y += this.vy;
+                    }
+                }
+            }
+
+            draw(alpha = 1) {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillRect(this.x, this.y, 2, 2);
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // --- DRAW HEART FUNCTION ---
+        function drawHeart(x, y, size, glow, alpha) {
             ctx.save();
             ctx.translate(x, y);
-            
-            // Dhadkane wala effect (Pulse)
-            let scale = 1 + Math.sin(Date.now() * 0.005) * 0.1;
+            let scale = 1 + Math.sin(Date.now() * 0.01) * 0.1; // Dhadkan
             ctx.scale(scale, scale);
 
-            // Glow effect
-            ctx.shadowBlur = glowIntensity;
+            ctx.shadowBlur = glow;
             ctx.shadowColor = '#ff4d6d';
-            ctx.fillStyle = '#ff4d6d';
+            ctx.fillStyle = `rgba(255, 77, 109, ${alpha})`;
 
             ctx.beginPath();
-            let topCurveHeight = size * 0.3;
-            ctx.moveTo(0, topCurveHeight);
-            // Left curve
-            ctx.bezierCurveTo(
-                -size / 2, -topCurveHeight, 
-                -size, topCurveHeight, 
-                0, size
-            );
-            // Right curve
-            ctx.bezierCurveTo(
-                size, topCurveHeight, 
-                size / 2, -topCurveHeight, 
-                0, topCurveHeight
-            );
+            let topH = size * 0.3;
+            ctx.moveTo(0, topH);
+            ctx.bezierCurveTo(-size / 2, -topH, -size, topH, 0, size);
+            ctx.bezierCurveTo(size, topH, size / 2, -topH, 0, topH);
             ctx.fill();
             ctx.restore();
         }
 
-        // --- 3. Main Animation Loop ---
+        // --- HOLLOW HEART FOR 'I' DOT ---
+        function drawHollowHeart(x, y, size, alpha) {
+            ctx.save();
+            ctx.translate(x, y);
+            // Floating pulse effect
+            let scale = 1 + Math.sin(Date.now() * 0.005) * 0.1;
+            ctx.scale(scale, scale);
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = `rgba(255, 77, 109, ${alpha})`;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff4d6d';
+
+            ctx.beginPath();
+            let topH = size * 0.3;
+            ctx.moveTo(0, topH);
+            ctx.bezierCurveTo(-size / 2, -topH, -size, topH, 0, size);
+            ctx.bezierCurveTo(size, topH, size / 2, -topH, 0, topH);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // --- ANIMATION MASTER CONTROLLER ---
+        let startTime;
+        let heartState = { y: -100, vy: 0 };
+        let setupDone = false;
+
+        async function precalculate() {
+            initCanvas();
+            initStars();
+            
+            // Generate targets for all words
+            targetsAgrimaCenter = getTargets("Agrima", ch / 2);
+            targetsAgrimaBottom = getTargets("Agrima", ch / 2 + 80);
+            targetsKunalTop = getTargets("Kunal", ch / 2 - 80);
+            
+            document.getElementById('loading').style.display = 'none';
+            setupDone = true;
+            startTime = Date.now();
+            animate();
+        }
+
         function animate() {
-            // Halka sa fade effect motion blur ke liye
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if(!setupDone) return;
+            
+            let t = Date.now() - startTime;
+            drawStars();
 
-            if (state === 'falling') {
-                // Heart ko neeche girana
-                heart.vy += 0.05; // Gravity
-                heart.y += heart.vy;
+            // PHASE 1: FALLING HEART (0 - 1.5s)
+            if (t < 1500) {
+                heartState.vy += 0.2; // Gravity
+                heartState.y += heartState.vy;
+                let glow = (heartState.y / (ch / 2)) * 40;
+                drawHeart(cw / 2, heartState.y, 40, glow, 1);
                 
-                // Halka sa left-right sway motion
-                heart.x = canvas.width / 2 + Math.sin(Date.now() * 0.002) * 20;
-                
-                // Glow badhega jaise-jaise neeche aayega
-                heart.glow = (heart.y / (canvas.height / 2)) * 50;
-
-                drawHeart(heart.x, heart.y, heart.size, heart.glow);
-
-                // Agar heart center me aa gaya, toh shatter (blast) kar do
-                if (heart.y >= canvas.height / 2) {
-                    state = 'shattering';
-                    createExplosion(heart.x, heart.y);
-                }
-            } 
-            else if (state === 'shattering') {
-                let allDead = true;
-
-                // Particles ko animate karna
-                for (let i = 0; i < particles.length; i++) {
-                    let p = particles[i];
-                    
-                    if (p.life > 0) {
-                        allDead = false;
-                        
-                        // Physics: Friction & Gravity
-                        p.vx *= 0.96; // Hawa ka rukawat
-                        p.vy *= 0.96;
-                        p.vy += 0.1; // Halka sa gravity neeche ki taraf
-                        
-                        p.x += p.vx;
-                        p.y += p.vy;
-                        p.life -= p.decay;
-
-                        // Draw particle
-                        ctx.globalAlpha = Math.max(0, p.life);
-                        ctx.fillStyle = p.color;
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
+                // Initialize particles right before explosion
+                if (t > 1400 && particles.length === 0) {
+                    for (let i = 0; i < targetsAgrimaCenter.length; i++) {
+                        particles.push(new Particle(cw / 2, ch / 2, '#ff4d6d')); // Pink neon
                     }
                 }
-                ctx.globalAlpha = 1.0; // Reset alpha
-                ctx.shadowBlur = 0;
+            }
+            
+            // PHASE 2 & 3: EXPLODE & SWIRL (1.5s - 4.5s)
+            else if (t >= 1500 && t < 4500) {
+                let phase = t < 2500 ? 'explode' : 'swirl';
+                particles.forEach(p => {
+                    p.update(phase);
+                    p.draw();
+                });
+            }
+            
+            // PHASE 4: FORMING AGRIMA (CENTER) (4.5s - 6.5s)
+            else if (t >= 4500 && t < 6500) {
+                particles.forEach((p, i) => {
+                    p.target = targetsAgrimaCenter[i];
+                    p.update('form');
+                    p.draw();
+                });
+            }
 
-                // Agar saari chingariyan gayab ho gayi, toh Next button dikhao
-                if (allDead) {
-                    state = 'done';
-                    let nextStageUI = document.getElementById('next-stage');
-                    nextStageUI.style.opacity = '1';
-                    nextStageUI.style.pointerEvents = 'auto'; // Ab click kar sakte hain
+            // PHASE 5: DUPLICATE & MORPH (6.5s - 9.5s)
+            else if (t >= 6500 && t < 9500) {
+                // Initialize duplicate particles top
+                if (particlesTop.length === 0) {
+                    particles.forEach(p => {
+                        particlesTop.push(new Particle(p.x, p.y, '#00d4ff')); // Blue neon for Kunal
+                    });
                 }
+
+                // Bottom particles form Agrima at bottom
+                particles.forEach((p, i) => {
+                    p.target = targetsAgrimaBottom[i];
+                    p.update('morph');
+                    p.draw();
+                });
+
+                // Top particles morph into Kunal at top
+                particlesTop.forEach((p, i) => {
+                    // Handle mismatch in target lengths safely
+                    p.target = targetsKunalTop[i % targetsKunalTop.length];
+                    p.update('morph');
+                    p.draw();
+                });
+            }
+
+            // PHASE 6: FINAL CRISP TEXT & HOLLOW HEART (9.5s onwards)
+            else if (t >= 9500) {
+                // Fade out particles
+                let pAlpha = Math.max(0, 1 - (t - 9500) / 1000);
+                if (pAlpha > 0) {
+                    particles.forEach(p => p.draw(pAlpha));
+                    particlesTop.forEach(p => p.draw(pAlpha));
+                }
+
+                // Fade in crisp text
+                let textAlpha = Math.min(1, (t - 9500) / 1000);
+                
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = `700 ${fontSize}px 'Montserrat', sans-serif`;
+
+                // Draw Kunal Top (Blue Glow)
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#00d4ff';
+                ctx.fillStyle = `rgba(0, 212, 255, ${textAlpha})`;
+                ctx.fillText("Kunal", cw / 2, ch / 2 - 80);
+
+                // Draw Agrima Bottom (Pink Glow)
+                ctx.shadowColor = '#ff4d6d';
+                ctx.fillStyle = `rgba(255, 77, 109, ${textAlpha})`;
+                
+                // Magic part: Calculate the position of the 'i' dot in "Agrima"
+                let fullWidth = ctx.measureText("Agrima").width;
+                let startX = (cw / 2) - (fullWidth / 2);
+                let w_agr = ctx.measureText("Agr").width;
+                let w_i = ctx.measureText("i").width;
+                
+                let i_center_x = startX + w_agr + (w_i / 2);
+                let i_dot_y = (ch / 2 + 80) - (fontSize * 0.32); // Approximate dot height
+
+                // Draw the word Agrima
+                ctx.fillText("Agrima", cw / 2, ch / 2 + 80);
+
+                // Erase the original dot with a black circle to hide it
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(i_center_x, i_dot_y, fontSize * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw the magical Hollow Heart at the dot's position!
+                drawHollowHeart(i_center_x, i_dot_y, fontSize * 0.35, textAlpha);
             }
 
             requestAnimationFrame(animate);
         }
 
-        // Thoda delay ke baad animation start karo
-        setTimeout(animate, 500);
+        // Start everything
+        window.onload = () => {
+            // Slight delay to ensure fonts load before extracting pixels
+            setTimeout(precalculate, 1000); 
+        };
+        
+        window.addEventListener('resize', () => {
+            // Reload on resize to recalculate targets for new screen size
+            location.reload(); 
+        });
 
     </script>
 </body>
 </html>
+
 
