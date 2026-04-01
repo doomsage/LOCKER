@@ -2,140 +2,253 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Heart Stream | Agrima</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Heart River | Agrima</title>
+    <!-- Cute font for UI elements -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; background-color: #fff0f3; }
-        .back-btn {
-            position: fixed; top: 20px; left: 20px; z-index: 1000;
-            padding: 10px 20px; background: #ff4d6d; color: white;
-            border-radius: 30px; text-decoration: none; font-family: sans-serif;
-            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
-            font-size: 14px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Phone par tap highlight aur selection disable karne ke liye */
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
-        .ui-text {
-            position: fixed; top: 10%; width: 100%; text-align: center;
-            font-family: 'Pacifico', cursive; color: #ff4d6d; pointer-events: none;
-            font-size: 1.8rem; text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+
+        body {
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe5ec 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none; /* Swipe scroll rokne ke liye */
+        }
+
+        /* Canvas jisme jadu hoga */
+        #riverCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
             z-index: 10;
+            padding: 8px 16px;
+            background: rgba(255, 77, 109, 0.15);
+            color: #ff4d6d;
+            border: 2px solid rgba(255, 77, 109, 0.3);
+            border-radius: 20px;
+            text-decoration: none;
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        .back-btn:active {
+            background: rgba(255, 77, 109, 0.4);
+            transform: scale(0.95);
+        }
+
+        /* Instruction Text */
+        .instruction {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+            color: #ff4d6d;
+            font-size: 1.5rem;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.8;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
         }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="back-btn">← Back</a>
-    <div class="ui-text">River of Hearts for Agrima ✨</div>
+    <div class="instruction">Touch to divert the love flow... ✨</div>
+
+    <canvas id="riverCanvas"></canvas>
 
     <script>
-        let hearts = [];
-        const numHearts = 35; // Screen par bheed nahi hogi, stream lagegi
+        const canvas = document.getElementById('riverCanvas');
+        const ctx = canvas.getContext('2d');
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            for (let i = 0; i < numHearts; i++) {
-                hearts.push(new HeartParticle());
-            }
+        // Phone ke hisaab se canvas size set karna
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
 
-        function draw() {
-            // Soft trail background for smooth motion
-            background(255, 240, 243, 150); 
+        // Emojis jo flow karenge
+        const emojis = ['❤️', '💖', '💗', '💓', '💕', '💘'];
+        
+        // Touch/Mouse Tracking
+        let touchX = -1000;
+        let touchY = -1000;
+        let isTouching = false;
 
-            for (let h of hearts) {
-                h.update();
-                h.display();
-            }
-        }
+        // Interaction Events (Mobile aur PC dono ke liye)
+        window.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
+        });
+        window.addEventListener('touchmove', (e) => {
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
+        });
+        window.addEventListener('touchend', () => {
+            isTouching = false;
+            touchX = -1000;
+            touchY = -1000;
+        });
 
-        class HeartParticle {
+        // Mouse events for PC testing
+        window.addEventListener('mousedown', (e) => { isTouching = true; touchX = e.clientX; touchY = e.clientY; });
+        window.addEventListener('mousemove', (e) => { if (isTouching) { touchX = e.clientX; touchY = e.clientY; } });
+        window.addEventListener('mouseup', () => { isTouching = false; touchX = -1000; touchY = -1000; });
+
+        class RiverHeart {
             constructor() {
-                this.init(true); // Start anywhere on screen first time
+                this.reset(true);
             }
 
-            init(firstTime = false) {
-                // Left se shuru hoga
-                this.x = firstTime ? random(width) : -50;
+            // Jab heart screen se bahar jaye toh wapas shuru karne ke liye
+            reset(isInit = false) {
+                // Pehli baar me screen ke andar faila do, baad me left se shuru karo
+                this.x = isInit ? Math.random() * canvas.width : -50;
                 
-                // Sirf middle section mein stream flow karegi (height ka 40% to 60%)
-                this.y = random(height * 0.35, height * 0.65);
-                this.baseY = this.y;
+                // Screen ke center ke aas-paas flow karega (30% to 70% height me)
+                this.baseY = canvas.height * 0.3 + Math.random() * (canvas.height * 0.4);
+                this.y = this.baseY;
                 
-                this.size = random(15, 30);
-                this.speed = random(2, 5);
-                this.waveRange = random(30, 60); // Kitna upar neeche jayega
-                this.waveSpeed = random(0.02, 0.05);
-                this.offset = random(1000);
+                this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                this.size = Math.random() * 15 + 20; // Emoji ka size
+                this.speed = Math.random() * 1.5 + 1.5; // Left to right speed
                 
-                // History for the "Cute Traces" (Tails)
+                // Wave properties
+                this.waveAmplitude = Math.random() * 30 + 20; // Kitna upar neeche jayega
+                this.waveFrequency = Math.random() * 0.02 + 0.01;
+                this.timeOffset = Math.random() * 1000;
+                
+                // Traces ke liye array
                 this.history = [];
-                
-                // Soft pink/red shades
-                this.color = color(random([ '#ff4d6d', '#ff758f', '#ff85a1', '#ffafcc' ]));
             }
 
             update() {
-                // 1. Movement: Left to Right
+                // 1. Normal Wave Motion
+                let waveOffset = Math.sin(Date.now() * this.waveFrequency + this.timeOffset) * this.waveAmplitude;
+                let targetY = this.baseY + waveOffset;
+
+                // 2. The Real Water Divert Logic (Agar touch ho raha hai)
+                if (isTouching) {
+                    let dx = this.x - touchX;
+                    let dy = this.y - touchY;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    let influenceRadius = 150; // Kitni door se paani hatega
+                    
+                    if (distance < influenceRadius) {
+                        // Jab ungli paas ho, toh Y axis par force lagao
+                        let force = (influenceRadius - distance) / influenceRadius;
+                        let pushDirection = dy > 0 ? 1 : -1; // Upar hai toh upar dhaklo, neeche hai toh neeche
+                        
+                        let pushPower = 80; // Kitni jor se divert hoga
+                        targetY += pushDirection * (force * pushPower);
+                    }
+                }
+
+                // Smoothly move towards targetY (Is se ek fluid spring jesa motion aata hai)
+                this.y += (targetY - this.y) * 0.1;
+
+                // Move forward (Left to Right)
                 this.x += this.speed;
 
-                // 2. Wave Motion: Sine Wave logic
-                let wave = sin(frameCount * this.waveSpeed + this.offset) * this.waveRange;
-                this.y = this.baseY + wave;
-
-                // 3. Interaction: Divert on Touch/Mouse
-                let d = dist(mouseX, mouseY, this.x, this.y);
-                if (d < 120) {
-                    // Agar mouse/touch pass hai, toh force calculate karo
-                    let angle = atan2(this.y - mouseY, this.x - mouseX);
-                    let push = map(d, 0, 120, 10, 0);
-                    this.x += cos(angle) * push;
-                    this.y += sin(angle) * push;
-                    this.baseY += sin(angle) * (push * 0.2); // Stream ko thoda shift karega
+                // 3. Record history for cute traces
+                this.history.push({ x: this.x, y: this.y });
+                if (this.history.length > 15) {
+                    this.history.shift(); // Purane nishaan hata do
                 }
 
-                // 4. Trace Management
-                this.history.push({x: this.x, y: this.y});
-                if (this.history.length > 12) {
-                    this.history.shift();
-                }
-
-                // Reset if it goes off screen
-                if (this.x > width + 50) {
-                    this.init(false);
+                // Agar screen ke bahar nikal jaye right side se
+                if (this.x > canvas.width + 50) {
+                    this.reset();
                 }
             }
 
-            display() {
-                // Draw Traces (Cute fading tails)
+            draw() {
+                // 1. Draw Cute Traces (Pichhe chhutte nishaan)
                 for (let i = 0; i < this.history.length; i++) {
                     let pos = this.history[i];
-                    let opacity = map(i, 0, this.history.length, 0, 150);
-                    let s = map(i, 0, this.history.length, 0, this.size);
+                    let alpha = i / this.history.length; // Purane wale halke honge
+                    let traceSize = (this.size * 0.4) * alpha; // Purane wale chote honge
                     
-                    noStroke();
-                    fill(red(this.color), green(this.color), blue(this.color), opacity);
-                    this.drawHeart(pos.x, pos.y, s);
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, traceSize, 0, Math.PI * 2);
+                    // Glowing pink traces
+                    ctx.fillStyle = `rgba(255, 77, 109, ${alpha * 0.4})`;
+                    ctx.fill();
                 }
 
-                // Draw Main Heart
-                fill(this.color);
-                this.drawHeart(this.x, this.y, this.size);
-            }
-
-            // Custom Heart Shape Drawing
-            drawHeart(x, y, size) {
-                beginShape();
-                vertex(x, y);
-                bezierVertex(x - size / 2, y - size / 2, x - size, y + size / 3, x, y + size);
-                bezierVertex(x + size, y + size / 3, x + size / 2, y - size / 2, x, y);
-                endShape(CLOSE);
+                // 2. Draw Main Emoji
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Emoji ko draw karna
+                ctx.fillText(this.emoji, this.x, this.y);
             }
         }
 
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
+        // Bohot saare hearts create karna
+        const heartsCount = 60; // Phone ke liye perfect balance
+        const heartsArray = [];
+        for (let i = 0; i < heartsCount; i++) {
+            heartsArray.push(new RiverHeart());
         }
+
+        // Animation Loop
+        function animate() {
+            // Screen ko clear karna (halka sa transparent white flow effect ke liye)
+            ctx.fillStyle = 'rgba(255, 240, 243, 0.4)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Agar user touch kar raha hai toh ek halka ripple/glow dikhao
+            if (isTouching) {
+                ctx.beginPath();
+                ctx.arc(touchX, touchY, 60, 0, Math.PI * 2);
+                let gradient = ctx.createRadialGradient(touchX, touchY, 0, touchX, touchY, 60);
+                gradient.addColorStop(0, 'rgba(255, 77, 109, 0.2)');
+                gradient.addColorStop(1, 'rgba(255, 77, 109, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            // Sabhi hearts ko update aur draw karna
+            for (let i = 0; i < heartsArray.length; i++) {
+                heartsArray[i].update();
+                heartsArray[i].draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
     </script>
 </body>
 </html>
+
