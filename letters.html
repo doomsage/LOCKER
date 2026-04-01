@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magical Letters | Agrima</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <style>
+        :root {
+            --gold: #d4af37;
+            --paper: #f4e4bc;
+            --dark-bg: #0a0a0c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1500px; /* Essential for 3D depth */
+        }
+
+        /* Magical Particles Background */
+        #dust {
+            position: fixed; inset: 0; pointer-events: none;
+        }
+
+        .letter-scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .parchment {
+            position: absolute;
+            width: 280px;
+            min-height: 380px;
+            background: var(--paper);
+            background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), inset 0 0 50px rgba(0,0,0,0.1);
+            border: 2px solid var(--gold);
+            opacity: 0;
+            transform: translateZ(-1000px) rotateY(45deg); /* Start from deep inside */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .parchment h2 {
+            font-family: 'Cinzel', serif;
+            color: #4a3721;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(74, 55, 33, 0.3);
+        }
+
+        .parchment p {
+            font-family: 'Dancing Script', cursive;
+            color: #2c1e0f;
+            font-size: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            color: var(--gold); text-decoration: none; font-family: 'Cinzel';
+            padding: 10px; border: 1px solid var(--gold); border-radius: 5px;
+        }
+
+        .magic-glow {
+            position: absolute; width: 100%; height: 100%;
+            box-shadow: 0 0 20px var(--gold);
+            opacity: 0.3; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">← Back</a>
+    <canvas id="dust"></canvas>
+
+    <div class="letter-scene" id="scene">
+        </div>
+
+    <script>
+        const messages = [
+            { title: "Dear Agrima", text: "Is jadu bhari raat mein, sirf tumhari yaad hai..." },
+            { title: "Unspoken", text: "Tumhari smile kisi purani kahani ke jadu jaisi hai." },
+            { title: "Always", text: "Har ek page par sirf tumhara naam likha hai." },
+            { title: "Connection", text: "Kunal ❤️ Agrima: A Story Forever." }
+        ];
+
+        let currentIdx = 0;
+
+        function createParchment(msg) {
+            const div = document.createElement('div');
+            div.className = 'parchment';
+            div.innerHTML = `
+                <div class="magic-glow"></div>
+                <h2>${msg.title}</h2>
+                <p>${msg.text}</p>
+            `;
+            document.getElementById('scene').appendChild(div);
+
+            // GSAP 3D Fly-In Animation
+            gsap.to(div, {
+                opacity: 1,
+                z: 0, // Comes to the front
+                rotateY: 0,
+                duration: 2.5,
+                ease: "power2.out",
+                onComplete: () => {
+                    // Floating effect
+                    gsap.to(div, { y: "-=15", duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut" });
+                    
+                    // Automatically fly away after 4 seconds to make space for next
+                    setTimeout(() => {
+                        gsap.to(div, {
+                            z: 1000, // Flies past the camera
+                            opacity: 0,
+                            scale: 1.5,
+                            duration: 2,
+                            onComplete: () => div.remove()
+                        });
+                        showNext();
+                    }, 4000);
+                }
+            });
+        }
+
+        function showNext() {
+            if (currentIdx < messages.length) {
+                createParchment(messages[currentIdx]);
+                currentIdx++;
+            } else {
+                // Loop or finish
+                currentIdx = 0;
+                setTimeout(showNext, 1000);
+            }
+        }
+
+        // Start the sequence
+        window.onload = () => {
+            showNext();
+            initDust();
+        };
+
+        // Magical Dust Particles
+        function initDust() {
+            const canvas = document.getElementById('dust');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            for(let i=0; i<80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2,
+                    speed: Math.random() * 0.5
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                ctx.fillStyle = "rgba(212, 175, 55, 0.5)";
+                particles.forEach(p => {
+                    p.y -= p.speed;
+                    if(p.y < 0) p.y = canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
