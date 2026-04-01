@@ -2,238 +2,220 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Cute Agrima | ❤️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Agrima | Infinite Love</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    
+
     <style>
         :root {
-            --cute-pink: #ffb3c1;
-            --soft-pink: #ffccd5;
-            --pastel-white: #fff0f3;
-            --heart-red: #ff4d6d;
-            --text-color: #590d22;
+            --p1: #ff758f; --p2: #ffafcc; --p3: #fcd5ce;
+            --white: #ffffff; --text: #590d22;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; color: var(--text-color); }
-        body { background-color: var(--pastel-white); overflow-x: hidden; scroll-behavior: smooth; }
-
-        /* --- CUTE LOADER --- */
-        #loader {
-            position: fixed; inset: 0; background: var(--pastel-white); z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: 1s ease-out;
-        }
-        .loader-heart { font-size: 80px; animation: heartBeat 1.2s infinite; }
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            14% { transform: scale(1.3); }
-            28% { transform: scale(1); }
-            42% { transform: scale(1.3); }
-            70% { transform: scale(1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--p3); 
+            font-family: 'Fredoka One', cursive; 
+            overflow: hidden; /* Phone par scroll hide karke custom feel */
+            height: 100vh; width: 100vw;
         }
 
-        /* --- FLOATING ELEMENTS BG --- */
-        #animations-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
-        .float-item { position: absolute; font-size: 20px; opacity: 0; }
-
-        /* --- MAIN LAYOUT --- */
-        section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; position: relative; z-index: 10; }
-
-        /* Hero Section */
-        .hero { background: linear-gradient(135deg, var(--soft-pink) 0%, #fff 100%); }
-        .hero-text { font-family: 'Pacifico', cursive; font-size: clamp(4rem, 12vw, 9rem); color: var(--heart-red); text-shadow: 4px 4px 0px rgba(255,179,193,0.5); }
-        .agri-name { display: inline-block; animation: bounceIn 1s; }
-
-        /* --- CUTE TRANSITION DIVIDER --- */
-        .divider { height: 100px; width: 100%; background: var(--cute-pink); clip-path: polygon(0 0, 100% 30%, 100% 70%, 0% 100%); margin: -50px 0; }
-
-        /* --- JOURNEY CARDS --- */
-        .cute-card {
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            border-radius: 40px; padding: 40px; width: 85%; max-width: 900px;
-            box-shadow: 0 20px 60px rgba(255, 179, 193, 0.3);
-            border: 5px solid white; margin: 40px 0;
-            opacity: 0; transform: translateY(50px);
+        /* --- 1. THE BIG ENTER BUTTON (Music Trigger) --- */
+        #entry-gate {
+            position: fixed; inset: 0; background: radial-gradient(circle, var(--p2), var(--p1));
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; color: white; padding: 20px;
         }
-        .moment-title { font-family: 'Pacifico', cursive; font-size: 2.5rem; color: var(--cute-pink); margin-bottom: 20px; }
-        .moment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .moment-item { background: white; border-radius: 20px; padding: 20px; border: 2px dashed var(--cute-pink); transition: 0.3s; }
-        .moment-item:hover { transform: scale(1.05) rotate(2deg); background: var(--soft-pink); }
-
-        /* --- PROPOSAL --- */
-        .proposal-box {
-            background: white; padding: 60px; border-radius: 50%;
-            width: 500px; height: 500px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            box-shadow: 0 0 100px rgba(255, 77, 109, 0.4);
-            border: 10px solid var(--cute-pink);
-            animation: pulseGlow 2s infinite;
+        .touch-btn {
+            width: 120px; height: 120px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 50px;
+            box-shadow: 0 0 30px rgba(255,255,255,0.8); animation: pulse 1.5s infinite;
         }
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 50px rgba(255, 77, 109, 0.3); }
-            50% { box-shadow: 0 0 120px rgba(255, 77, 109, 0.6); }
-            100% { box-shadow: 0 0 50px rgba(255, 77, 109, 0.3); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* --- 2. BACKGROUND ANIMATIONS (Moving Blobs) --- */
+        .blob {
+            position: absolute; width: 200px; height: 200px; background: var(--p2);
+            filter: blur(40px); border-radius: 50%; z-index: 1; opacity: 0.6;
         }
 
-        .btn-yes {
-            padding: 20px 60px; font-size: 2rem; border-radius: 50px;
-            border: none; cursor: pointer; color: white;
-            background: linear-gradient(45deg, var(--heart-red), #ff758f);
-            box-shadow: 0 15px 30px rgba(255, 77, 109, 0.4);
-            transition: 0.3s; font-family: 'Pacifico', cursive;
-            margin-top: 30px;
-            animation: heartShaker 1.5s infinite;
-        }
-        .btn-yes:hover { transform: scale(1.1) translateY(-5px); }
-        @keyframes heartShaker {
-            0% { transform: scale(1) rotate(0deg); }
-            5% { transform: scale(1.1) rotate(-5deg); }
-            10% { transform: scale(1.1) rotate(5deg); }
-            15% { transform: scale(1.1) rotate(-5deg); }
-            20% { transform: scale(1.1) rotate(5deg); }
-            25% { transform: scale(1) rotate(0deg); }
+        /* --- 3. FLOATING HEART PARTICLES --- */
+        #particle-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 2; }
+
+        /* --- 4. MAIN CONTENT (Phone Optimized) --- */
+        #main-stage {
+            display: none; position: relative; height: 100vh; width: 100vw;
+            flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
 
-        /* Keyframes */
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.05); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(1); }
+        .agrima-title {
+            font-size: 3rem; color: var(--text); text-align: center;
+            line-height: 1.2; text-shadow: 2px 2px var(--white);
         }
+
+        .floating-card {
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
+            border-radius: 30px; padding: 20px; margin: 20px; width: 85%;
+            border: 3px solid var(--white); box-shadow: 0 15px 35px rgba(255, 117, 143, 0.3);
+            transform: perspective(1000px) rotateX(10deg);
+        }
+
+        /* --- 5. THE ULTIMATE YES BUTTON --- */
+        .yes-wrap { margin-top: 30px; position: relative; }
+        .huge-yes {
+            background: linear-gradient(45deg, #ff4d6d, #ff85a1);
+            color: white; border: none; padding: 20px 60px; font-size: 2rem;
+            border-radius: 50px; font-family: 'Pacifico', cursive;
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.5);
+            cursor: pointer; animation: jiggle 2s infinite;
+        }
+        @keyframes jiggle {
+            0%, 100% { transform: scale(1) rotate(0); }
+            10%, 20% { transform: scale(1.1) rotate(-3deg); }
+            30%, 50%, 70% { transform: scale(1.1) rotate(3deg); }
+            40%, 60% { transform: scale(1.1) rotate(-3deg); }
+        }
+
+        /* Music Bar Animation */
+        .music-visualizer {
+            display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 15px;
+        }
+        .bar { width: 4px; background: var(--p1); animation: equalize 0.8s infinite alternate; }
+        @keyframes equalize { from { height: 5px; } to { height: 25px; } }
 
     </style>
 </head>
 <body>
 
-    <div id="animations-container"></div>
-
-    <div id="loader" onclick="startCuteApp()">
-        <div class="loader-heart">💖</div>
-        <p style="font-size: 1.5rem; color: var(--heart-red);">Tap to make my heart beat...</p>
+    <div id="entry-gate" onclick="unlockLove()">
+        <div class="touch-btn">❤️</div>
+        <h2 style="margin-top: 20px; font-family: 'Pacifico';">Agrima, touch the heart...</h2>
+        <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">(Please turn up the volume 🔊)</p>
     </div>
 
-    <section class="hero">
-        <h1 class="hero-text">Hello, <span class="agri-name">Agrima</span>!</h1>
-        <p style="font-size: 1.5rem; margin-top: 20px;">Aapke liye ek super cute surprise hai... ✨</p>
-        <div style="margin-top: 80px; font-size: 50px;">👇💖👇</div>
-    </section>
+    <canvas id="particle-canvas"></canvas>
+    <div class="blob" id="b1"></div>
+    <div class="blob" id="b2"></div>
 
-    <div class="divider"></div>
-
-    <section>
-        <div class="cute-card" id="journey-card">
-            <h2 class="moment-title">Kyunki Aap Ho Sabse Best!</h2>
-            <div class="moment-grid">
-                <div class="moment-item">
-                    <div style="font-size: 40px; color: var(--cute-pink);">🥰</div>
-                    <h3>The Cutest Smile</h3>
-                    <p>Jab aap smile karte ho, toh poori duniya glow karne lagti hai.</p>
-                </div>
-                <div class="moment-item">
-                    <div style="font-size: 40px; color: var(--cute-pink);">🧸</div>
-                    <h3>Purest Soul</h3>
-                    <p>Aap jaisa pyaara aur kind insaan maine kabhi nahi dekha.</p>
-                </div>
-                <div class="moment-item">
-                    <div style="font-size: 40px; color: var(--cute-pink);">💫</div>
-                    <h3>My Inspiration</h3>
-                    <p>Aapki baatein mujhe hamesha better banne ke liye inspire karti hain.</p>
-                </div>
-            </div>
+    <div id="main-stage">
+        <div class="music-visualizer">
+            <div class="bar" style="animation-delay: 0.1s"></div>
+            <div class="bar" style="animation-delay: 0.3s"></div>
+            <div class="bar" style="animation-delay: 0.2s"></div>
+            <div class="bar" style="animation-delay: 0.4s"></div>
+            <div class="bar" style="animation-delay: 0.1s"></div>
         </div>
-    </section>
 
-    <section style="background-color: var(--soft-pink);">
-        <div class="proposal-box">
-            <h1 style="font-family: 'Pacifico', cursive; font-size: 3.5rem; color: var(--heart-red);">Agrima...</h1>
-            <p style="font-size: 1.3rem; margin: 20px 0;">Kya aap meri life ko permanently cute banaoge?</p>
-            <p style="font-style: italic;">(Please say yes, or I'll be sad! 🥺)</p>
-            <button class="btn-yes" onclick="celebrateCute()">YES! ❤️</button>
+        <h1 class="agrima-title">Hey <br><span style="color: var(--p1); font-family: 'Pacifico';">Agrima!</span></h1>
+
+        <div class="floating-card">
+            <p style="font-size: 1.1rem; line-height: 1.6; text-align: center;">
+                Aapke liye mere paas <b>infinite</b> pyaar hai. <br>
+                Aap meri favorite error ho jise main kabhi fix nahi karna chahta! 🧸✨
+            </p>
         </div>
-    </section>
 
-    <audio id="cuteAudio" loop>
-        <source src="https://ia801600.us.archive.org/21/items/lovely-lofi-hip-hop-loop/lovely-lofi-hip-hop-loop.mp3" type="audio/mpeg">
+        <div class="yes-wrap">
+            <button class="huge-yes" onclick="theGrandFinale()">YES! ❤️</button>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6;">(No button error 404: Not Found)</p>
+    </div>
+
+    <audio id="romanticSong" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        // Start App and Music
-        function startCuteApp() {
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('cuteAudio').play();
-                initAnimations();
-            }, 1000);
+        // --- UNLOCK FUNCTION ---
+        function unlockLove() {
+            // Play Music
+            const audio = document.getElementById('romanticSong');
+            audio.play().catch(e => console.log("Music blocked, waiting for interaction"));
+
+            // Hide Gate
+            gsap.to("#entry-gate", { opacity: 0, duration: 1, onComplete: () => {
+                document.getElementById('entry-gate').style.display = 'none';
+                document.getElementById('main-stage').style.display = 'flex';
+                startUltraAnimations();
+            }});
         }
 
-        // Initialize GSAP & Floating Elements
-        function initAnimations() {
-            gsap.registerPlugin(ScrollTrigger);
+        // --- ULTRA ANIMATIONS (GSAP & Canvas) ---
+        function startUltraAnimations() {
+            // Move Blobs randomly
+            gsap.to("#b1", { x: "80vw", y: "70vh", duration: 10, repeat: -1, yoyo: true, ease: "sine.inOut" });
+            gsap.to("#b2", { x: "-20vw", y: "30vh", duration: 8, repeat: -1, yoyo: true, ease: "sine.inOut" });
 
-            // Create Floating Cute Items
-            const container = document.getElementById('animations-container');
-            const items = ['💖', '🧸', '⭐', '🌸', '✨', '🐾', '🍦'];
-            for (let i = 0; i < 50; i++) {
-                const item = document.createElement('div');
-                item.className = 'float-item';
-                item.innerHTML = items[Math.floor(Math.random() * items.length)];
-                container.appendChild(item);
-                animateItem(item);
+            // Floating Card Animation
+            gsap.to(".floating-card", { y: -20, repeat: -1, yoyo: true, duration: 2, ease: "power1.inOut" });
+
+            // Particles
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + 50;
+                    this.size = Math.random() * 15 + 5;
+                    this.speedY = Math.random() * 2 + 1;
+                    this.angle = Math.random() * 360;
+                }
+                update() {
+                    this.y -= this.speedY;
+                    this.angle += 1;
+                    if (this.y < -50) this.y = canvas.height + 50;
+                }
+                draw() {
+                    ctx.fillStyle = '#ffafcc';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
-            function animateItem(item) {
-                gsap.set(item, { x: gsap.utils.random(0, window.innerWidth), y: gsap.utils.random(0, window.innerHeight), opacity: gsap.utils.random(0.3, 0.8) });
-                gsap.to(item, {
-                    y: "-=300",
-                    x: gsap.utils.random("-=100", "+=100"),
-                    opacity: 0,
-                    duration: gsap.utils.random(3, 6),
-                    delay: gsap.utils.random(0, 5),
-                    ease: "sine.inOut",
-                    onComplete: () => { gsap.set(item, { y: window.innerHeight + 50 }); animateItem(item); }
-                });
+            function init() {
+                for (let i = 0; i < 40; i++) particles.push(new Particle());
             }
 
-            // Scroll Reveal for Cute Cards
-            gsap.to(".cute-card", {
-                scrollTrigger: { trigger: ".cute-card", start: "top 80%", toggleActions: "play none none none" },
-                opacity: 1, y: 0, duration: 1.5, ease: "back.out(1.7)"
-            });
-            gsap.from(".moment-item", {
-                scrollTrigger: { trigger: ".moment-grid", start: "top 85%" },
-                opacity: 0, y: 30, stagger: 0.3, duration: 1, ease: "power2.out"
-            });
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            init(); animate();
         }
 
-        // Final Ultra Celebration
-        function celebrateCute() {
-            // Massive Confetti
-            const duration = 5 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        // --- GRAND FINALE ---
+        function theGrandFinale() {
+            const audio = document.getElementById('romanticSong');
+            audio.volume = 1;
 
-            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            // Confetti Explosion
+            var end = Date.now() + (15 * 1000);
+            var colors = ['#ff4d6d', '#ffafcc', '#ffffff'];
 
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) return clearInterval(interval);
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-            }, 250);
+            (function frame() {
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
 
-            // Change Page to Ultimate Cute
-            document.body.innerHTML = `
-                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #fff, var(--soft-pink)); text-align: center; font-family: 'Pacifico', cursive;">
-                    <h1 style="color: var(--heart-red); font-size: 6rem; animation: bounceIn 1.5s;">BEST. DECISION. EVER! ❤️</h1>
-                    <p style="font-size: 2.5rem; color: var(--text-color); margin-top: 30px;">Agrima + Me = Forever Cute Pair 💑🧸</p>
-                    <div style="font-size: 100px; margin-top: 50px;">🌸✨💖💍💐</div>
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+
+            // Final Message
+            document.getElementById('main-stage').innerHTML = `
+                <div style="text-align:center; animation: bounceIn 1s;">
+                    <h1 style="font-size: 4rem; color: #ff4d6d; font-family: 'Pacifico';">Yayyy! ❤️</h1>
+                    <h2 style="font-size: 1.5rem; margin-top: 20px;">I Love You, Agrima!</h2>
+                    <p style="margin-top: 15px;">Aap meri duniya ho! 🌎✨</p>
+                    <div style="font-size: 80px; margin-top: 20px;">👩‍❤️‍👨🌷💍</div>
                 </div>
             `;
         }
